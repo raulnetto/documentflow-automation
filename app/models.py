@@ -25,3 +25,14 @@ class DocumentoResposta(BaseModel):
     tipo_documento: str
     proxima_etapa: str
     mensagem: str
+
+
+class UploadResposta(BaseModel):
+    """Resposta devolvida após o armazenamento do arquivo."""
+
+    status: str
+    arquivo: str
+    tipo_conteudo: str
+    tamanho_bytes: int
+    caminho_salvo: str
+    proxima_etapa: str
