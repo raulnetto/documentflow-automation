@@ -1,0 +1,24 @@
+# Ambiente virtual
+.venv/
+
+# Cache e arquivos compilados do Python
+__pycache__/
+*.py[cod]
+
+# Configurações privadas
+.env
+.env.*
+
+# Saídas geradas pelo sistema
+output/*
+!output/.gitkeep
+
+# Arquivos recebidos para processamento
+input/*
+!input/.gitkeep
+
+# Ferramentas e sistema operacional
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
