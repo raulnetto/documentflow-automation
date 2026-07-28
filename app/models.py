@@ -57,4 +57,14 @@ class OCRResposta(BaseModel):
     quantidade_caracteres: int
     caminho_salvo: str
     mecanismo: str
-    
+
+class ProcessamentoAutomaticoResposta(BaseModel):
+    """Resposta devolvida após a escolha automática do mecanismo."""
+
+    status: str
+    arquivo_origem: str
+    arquivo_texto: str
+    quantidade_paginas: int
+    quantidade_caracteres: int
+    caminho_salvo: str
+    mecanismo: str

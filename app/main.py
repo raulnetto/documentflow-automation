@@ -7,18 +7,20 @@ from app.models import (
     DocumentoResposta,
     ExtracaoResposta,
     OCRResposta,
+    ProcessamentoAutomaticoResposta,
     UploadResposta,
 )
 from app.services.armazenamento import salvar_upload
 from app.services.extrator_ocr import extrair_texto_ocr
 from app.services.extrator_pdf import extrair_texto_pdf
 from app.services.processador import processar_documento
+from app.services.processador_automatico import processar_automaticamente
 
 
 app = FastAPI(
     title="Automação de Documentos",
     description="API para processamento automatizado de documentos.",
-    version="0.4.0",
+    version="0.5.0",
 )
 
 
@@ -29,7 +31,7 @@ def verificar_api() -> dict[str, str]:
     return {
         "status": "online",
         "servico": "Automação de Documentos",
-        "versao": "0.4.0",
+        "versao": "0.5.0",
     }
 
 
@@ -149,6 +151,53 @@ def processar_documento_com_ocr(
             quantidade_caracteres=caracteres,
             caminho_salvo=str(caminho_txt),
             mecanismo="tesseract",
+        )
+
+    except FileNotFoundError as erro:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(erro),
+        ) from erro
+
+    except RuntimeError as erro:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(erro),
+        ) from erro
+
+    except ValueError as erro:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(erro),
+        ) from erro
+@app.post(
+    "/documentos/{nome_arquivo}/processar-automaticamente",
+    response_model=ProcessamentoAutomaticoResposta,
+    status_code=status.HTTP_200_OK,
+)
+def processar_documento_automaticamente(
+    nome_arquivo: str,
+) -> ProcessamentoAutomaticoResposta:
+    """Escolhe automaticamente entre extração digital e OCR."""
+
+    caminho_arquivo = Path("input") / Path(nome_arquivo).name
+
+    try:
+        (
+            caminho_txt,
+            paginas,
+            caracteres,
+            mecanismo,
+        ) = processar_automaticamente(caminho_arquivo)
+
+        return ProcessamentoAutomaticoResposta(
+            status="processamento_concluido",
+            arquivo_origem=caminho_arquivo.name,
+            arquivo_texto=caminho_txt.name,
+            quantidade_paginas=paginas,
+            quantidade_caracteres=caracteres,
+            caminho_salvo=str(caminho_txt),
+            mecanismo=mecanismo,
         )
 
     except FileNotFoundError as erro:

@@ -2,6 +2,50 @@
 
 Todas as mudanças relevantes do projeto serão registradas neste arquivo.
 
+## v0.5.0 — Processamento automático de documentos
+
+### Adicionado
+
+- Exceção específica `DocumentoSemTextoDigitalError`.
+- Arquivo `app/exceptions.py`.
+- Serviço `app/services/processador_automatico.py`.
+- Modelo de resposta `ProcessamentoAutomaticoResposta`.
+- Endpoint `POST /documentos/{nome_arquivo}/processar-automaticamente`.
+- Escolha automática entre PyMuPDF e Tesseract OCR.
+- Fallback automático de PDF sem texto digital para OCR.
+- Encaminhamento direto de imagens para OCR.
+- Retorno do mecanismo utilizado no processamento.
+- Versão da API atualizada para `0.5.0`.
+
+### Validado
+
+- PDF digital processado automaticamente com PyMuPDF.
+- PDF digital com 11 páginas e 14.744 caracteres extraídos.
+- PDF escaneado encaminhado automaticamente ao Tesseract.
+- Imagem JPG encaminhada automaticamente ao Tesseract.
+- Geração de TXT nos três fluxos válidos.
+- Resposta HTTP `200 OK` para os processamentos concluídos.
+- Resposta HTTP `404 Not Found` para arquivo inexistente.
+- Preservação dos endpoints anteriores de upload, extração digital e OCR manual.
+
+### Decisões técnicas
+
+- Foi criada uma exceção específica para representar documentos sem texto digital.
+- O processador automático captura `DocumentoSemTextoDigitalError` e aciona o OCR sem depender da comparação de mensagens de erro.
+- PDFs com camada de texto continuam usando PyMuPDF.
+- PDFs sem camada de texto e imagens usam Tesseract OCR.
+- A resposta informa o mecanismo utilizado: `pymupdf` ou `tesseract`.
+
+### Limitações conhecidas
+
+- O arquivo precisa ter sido enviado previamente para a pasta `input/`.
+- A precisão do OCR depende da qualidade visual do documento.
+- O caminho do Tesseract ainda está configurado para o ambiente Windows local.
+- Os testes atuais são manuais pelo Swagger.
+- Arquivos de saída ainda não possuem identificador único.
+- Arquivos com o mesmo nome podem sobrescrever versões anteriores.
+- Ainda não há integração com N8N, banco de dados ou deploy.
+
 ## v0.4.0 — OCR de imagens e PDFs escaneados
 
 ### Adicionado

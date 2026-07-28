@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pymupdf
+from app.exceptions import DocumentoSemTextoDigitalError
 
 
 PASTA_OUTPUT = Path("output")
@@ -51,10 +52,10 @@ def extrair_texto_pdf(caminho_pdf: Path) -> tuple[Path, int, int]:
     texto_real = "\n".join(textos_extraidos).strip()
 
     if not texto_real:
-        raise ValueError(
-            "Nenhum texto digital foi encontrado. "
-            "O documento pode ser escaneado e exigir OCR."
-        )
+        raise DocumentoSemTextoDigitalError(
+        "Nenhum texto digital foi encontrado. "
+        "O documento pode ser escaneado e exigir OCR."
+    )
 
     texto_completo = "\n\n".join(textos_formatados).strip()
 
