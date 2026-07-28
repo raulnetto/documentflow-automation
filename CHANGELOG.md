@@ -2,6 +2,54 @@
 
 Todas as mudanças relevantes do projeto serão registradas neste arquivo.
 
+## v0.4.0 — OCR de imagens e PDFs escaneados
+
+### Adicionado
+
+- Dependências `pytesseract` e `Pillow`.
+- Integração com o motor externo Tesseract OCR.
+- Serviço `app/services/extrator_ocr.py`.
+- Modelo de resposta `OCRResposta`.
+- Endpoint `POST /documentos/{nome_arquivo}/ocr`.
+- OCR de arquivos PNG, JPG e JPEG.
+- OCR de PDFs escaneados.
+- Reconhecimento de texto em português e inglês.
+- Renderização das páginas de PDFs em imagem com PyMuPDF.
+- Geração de arquivos TXT na pasta `output/`.
+- Retorno da quantidade de páginas e caracteres reconhecidos.
+- Tratamento de arquivos inexistentes.
+- Tratamento de imagens inválidas.
+- Tratamento de OCR sem texto reconhecido.
+- Tratamento da ausência do executável Tesseract.
+
+### Validado
+
+- OCR de PDF escaneado com texto.
+- OCR de imagem JPG.
+- Reconhecimento de 1.097 caracteres em uma imagem.
+- Geração de arquivos TXT legíveis.
+- Resposta HTTP `200 OK` para OCR concluído.
+- Resposta HTTP `404 Not Found` para arquivo inexistente.
+- Resposta HTTP `400 Bad Request` para imagem sem texto.
+- Rejeição de arquivo TXT durante o upload.
+- Preservação dos fluxos anteriores de upload e extração digital.
+
+### Decisões técnicas
+
+- O executável do Tesseract foi configurado por caminho explícito porque não estava disponível no `PATH` do Windows.
+- O OCR utiliza os idiomas `por+eng`.
+- PDFs escaneados são renderizados em resolução ampliada antes do reconhecimento.
+- A validação considera apenas texto efetivamente reconhecido, evitando falsos positivos em imagens sem conteúdo.
+
+### Limitações conhecidas
+
+- A precisão depende da resolução, contraste, rotação e nitidez do documento.
+- O caminho do Tesseract ainda está configurado para o ambiente Windows local.
+- Ainda não há escolha automática entre extração digital e OCR.
+- Os testes atuais são manuais pelo Swagger.
+- Arquivos de saída ainda não possuem identificador único.
+- Arquivos com o mesmo nome podem sobrescrever versões anteriores.
+
 ## v0.3.0 — Extração de texto de PDFs digitais
 
 ### Adicionado

@@ -6,7 +6,7 @@ O projeto foi criado como estudo prático de automação de processos, APIs REST
 
 ## Estado atual
 
-### v0.3.0 — Extração de texto de PDFs digitais
+### v0.4.0 — OCR de imagens e PDFs escaneados
 
 A API atualmente consegue:
 
@@ -20,7 +20,13 @@ A API atualmente consegue:
 - gerar arquivos TXT com o conteúdo do documento;
 - identificar PDFs sem camada de texto;
 - diferenciar documentos digitais de documentos que exigem OCR;
-- retornar respostas HTTP estruturadas para sucesso e falha.
+- retornar respostas HTTP estruturadas para sucesso e falha;
+- executar OCR em imagens JPG, JPEG e PNG;
+- executar OCR em PDFs escaneados;
+- reconhecer texto em português e inglês;
+- gerar arquivos TXT com o texto reconhecido por OCR;
+- rejeitar imagens sem texto reconhecível;
+- tratar arquivos inexistentes sem interromper a API.
 
 ## Tecnologias atuais
 
@@ -33,6 +39,9 @@ A API atualmente consegue:
 - UploadFile
 - JSON
 - OpenAPI / Swagger
+- pytesseract
+- Pillow
+- Tesseract OCR
 
 ## Fluxo atual
 
@@ -43,5 +52,7 @@ arquivo enviado
 → arquivo é salvo em input/
 → PDF é analisado
 → texto digital é extraído
+→ quando necessário, imagem ou PDF escaneado passa por OCR
 → TXT é salvo em output/
 → API devolve metadados da extração
+```

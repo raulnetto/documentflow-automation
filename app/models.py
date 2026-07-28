@@ -46,3 +46,15 @@ class ExtracaoResposta(BaseModel):
     quantidade_paginas: int
     quantidade_caracteres: int
     caminho_salvo: str
+
+class OCRResposta(BaseModel):
+    """Resposta devolvida após o processamento por OCR."""
+
+    status: str
+    arquivo_origem: str
+    arquivo_texto: str
+    quantidade_paginas: int
+    quantidade_caracteres: int
+    caminho_salvo: str
+    mecanismo: str
+    
