@@ -2,11 +2,11 @@
 
 Pipeline de automação de documentos desenvolvido com Python e FastAPI.
 
-O projeto foi criado como estudo prático de automação de processos, APIs REST, integração entre sistemas, OCR e workflows com N8N.
+O projeto foi criado como estudo prático de automação de processos, APIs REST, integração entre sistemas, processamento de documentos, OCR e workflows com N8N.
 
 ## Estado atual
 
-### v0.2.0 — Upload e armazenamento de documentos
+### v0.3.0 — Extração de texto de PDFs digitais
 
 A API atualmente consegue:
 
@@ -15,9 +15,12 @@ A API atualmente consegue:
 - validar extensões permitidas;
 - receber arquivos reais por upload HTTP;
 - armazenar documentos localmente;
-- retornar nome, tamanho, tipo e caminho do arquivo;
-- rejeitar formatos não permitidos;
-- responder com códigos HTTP estruturados.
+- extrair texto de PDFs digitais;
+- contar páginas e caracteres extraídos;
+- gerar arquivos TXT com o conteúdo do documento;
+- identificar PDFs sem camada de texto;
+- diferenciar documentos digitais de documentos que exigem OCR;
+- retornar respostas HTTP estruturadas para sucesso e falha.
 
 ## Tecnologias atuais
 
@@ -25,6 +28,7 @@ A API atualmente consegue:
 - FastAPI
 - Pydantic
 - Uvicorn
+- PyMuPDF
 - pathlib
 - UploadFile
 - JSON
@@ -37,4 +41,7 @@ arquivo enviado
 → FastAPI recebe
 → extensão é validada
 → arquivo é salvo em input/
-→ API devolve metadados
+→ PDF é analisado
+→ texto digital é extraído
+→ TXT é salvo em output/
+→ API devolve metadados da extração

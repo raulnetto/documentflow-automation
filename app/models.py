@@ -36,3 +36,13 @@ class UploadResposta(BaseModel):
     tamanho_bytes: int
     caminho_salvo: str
     proxima_etapa: str
+
+class ExtracaoResposta(BaseModel):
+    """Resposta devolvida após a extração de texto de um PDF."""
+
+    status: str
+    arquivo_origem: str
+    arquivo_texto: str
+    quantidade_paginas: int
+    quantidade_caracteres: int
+    caminho_salvo: str

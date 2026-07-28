@@ -1,18 +1,22 @@
+from pathlib import Path
+
 from fastapi import FastAPI, File, HTTPException, UploadFile, status
 
 from app.models import (
     DocumentoEntrada,
     DocumentoResposta,
+    ExtracaoResposta,
     UploadResposta,
 )
 from app.services.armazenamento import salvar_upload
+from app.services.extrator_pdf import extrair_texto_pdf
 from app.services.processador import processar_documento
 
 
 app = FastAPI(
     title="Automação de Documentos",
     description="API para processamento automatizado de documentos.",
-    version="0.2.0",
+    version="0.3.0",
 )
 
 
@@ -23,7 +27,7 @@ def verificar_api() -> dict[str, str]:
     return {
         "status": "online",
         "servico": "Automação de Documentos",
-        "versao": "0.2.0",
+        "versao": "0.3.0",
     }
 
 
@@ -77,3 +81,41 @@ def receber_upload(
 
     finally:
         arquivo.file.close()
+
+@app.post(
+    "/documentos/{nome_arquivo}/extrair-texto",
+    response_model=ExtracaoResposta,
+    status_code=status.HTTP_200_OK,
+)
+def extrair_texto_documento(
+    nome_arquivo: str,
+) -> ExtracaoResposta:
+    """Extrai texto de um PDF previamente armazenado em input/."""
+
+    caminho_pdf = Path("input") / Path(nome_arquivo).name
+
+    try:
+        caminho_txt, paginas, caracteres = extrair_texto_pdf(
+            caminho_pdf
+        )
+
+        return ExtracaoResposta(
+            status="texto_extraido",
+            arquivo_origem=caminho_pdf.name,
+            arquivo_texto=caminho_txt.name,
+            quantidade_paginas=paginas,
+            quantidade_caracteres=caracteres,
+            caminho_salvo=str(caminho_txt),
+        )
+
+    except FileNotFoundError as erro:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(erro),
+        ) from erro
+
+    except ValueError as erro:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(erro),
+        ) from erro
