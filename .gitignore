@@ -22,3 +22,7 @@ input/*
 .idea/
 .DS_Store
 Thumbs.db
+
+# Registros produzidos durante o processamento
+registros/*
+!registros/.gitkeep

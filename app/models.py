@@ -59,7 +59,7 @@ class OCRResposta(BaseModel):
     mecanismo: str
 
 class ProcessamentoAutomaticoResposta(BaseModel):
-    """Resposta devolvida após a escolha automática do mecanismo."""
+    """Resposta devolvida após o processamento automático."""
 
     status: str
     arquivo_origem: str
@@ -68,3 +68,5 @@ class ProcessamentoAutomaticoResposta(BaseModel):
     quantidade_caracteres: int
     caminho_salvo: str
     mecanismo: str
+    id_registro: str
+    caminho_registro: str

@@ -15,6 +15,9 @@ from app.services.extrator_ocr import extrair_texto_ocr
 from app.services.extrator_pdf import extrair_texto_pdf
 from app.services.processador import processar_documento
 from app.services.processador_automatico import processar_automaticamente
+from app.services.registro_processamento import (
+    criar_registro_processamento,
+)
 
 
 app = FastAPI(
@@ -53,6 +56,11 @@ def receber_documento(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(erro),
         ) from erro
+
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail=str(erro),
+    ) from erro
 
 
 @app.post(
@@ -160,10 +168,18 @@ def processar_documento_com_ocr(
         ) from erro
 
     except RuntimeError as erro:
+        criar_registro_processamento(
+            arquivo_origem=caminho_arquivo.name,
+            status="erro",
+            mecanismo="tesseract",
+            mensagem_erro=str(erro),
+        )
+
+
         raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=str(erro),
-        ) from erro
+        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+        detail=str(erro),
+    ) from erro
 
     except ValueError as erro:
         raise HTTPException(
@@ -201,16 +217,29 @@ def processar_documento_automaticamente(
         )
 
     except FileNotFoundError as erro:
+        criar_registro_processamento(
+            arquivo_origem=caminho_arquivo.name,
+            status="erro",
+            mensagem_erro=str(erro),
+        )
+
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(erro),
         ) from erro
 
     except RuntimeError as erro:
+        criar_registro_processamento(
+        arquivo_origem=caminho_arquivo.name,
+        status="erro",
+        mecanismo="tesseract",
+        mensagem_erro=str(erro),
+    )
+
         raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=str(erro),
-        ) from erro
+        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+        detail=str(erro),
+    ) from erro
 
     except ValueError as erro:
         raise HTTPException(
