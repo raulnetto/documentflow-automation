@@ -1,184 +1,119 @@
 # Changelog
 
-Todas as mudanças relevantes do projeto serão registradas neste arquivo.
+Todas as mudanças relevantes deste projeto serão documentadas neste arquivo.
 
-## v0.5.0 — Processamento automático de documentos
+## [0.6.0] - 2026-07-29
 
 ### Adicionado
 
-- Exceção específica `DocumentoSemTextoDigitalError`.
-- Arquivo `app/exceptions.py`.
-- Serviço `app/services/processador_automatico.py`.
-- Modelo de resposta `ProcessamentoAutomaticoResposta`.
-- Endpoint `POST /documentos/{nome_arquivo}/processar-automaticamente`.
-- Escolha automática entre PyMuPDF e Tesseract OCR.
-- Fallback automático de PDF sem texto digital para OCR.
-- Encaminhamento direto de imagens para OCR.
-- Retorno do mecanismo utilizado no processamento.
-- Versão da API atualizada para `0.5.0`.
+- serviço `app/services/registro_processamento.py`;
+- geração de UUID por processamento;
+- data e hora com fuso local;
+- persistência de resultados em JSON;
+- campos de status, mecanismo, arquivos, páginas, caracteres e mensagem de erro;
+- retorno de `id_registro` e `caminho_registro`;
+- pasta `registros/`;
+- arquivo `registros/.gitkeep`;
+- regras no `.gitignore` para não versionar registros gerados.
+
+### Alterado
+
+- a rota automática passou a registrar processamentos concluídos;
+- erros `404`, `400` e `503` passaram a gerar registros persistentes;
+- o modelo de resposta passou a devolver a referência do registro.
 
 ### Validado
 
-- PDF digital processado automaticamente com PyMuPDF.
-- PDF digital com 11 páginas e 14.744 caracteres extraídos.
-- PDF escaneado encaminhado automaticamente ao Tesseract.
-- Imagem JPG encaminhada automaticamente ao Tesseract.
-- Geração de TXT nos três fluxos válidos.
-- Resposta HTTP `200 OK` para os processamentos concluídos.
-- Resposta HTTP `404 Not Found` para arquivo inexistente.
-- Preservação dos endpoints anteriores de upload, extração digital e OCR manual.
+- PDF digital gerou registro de sucesso;
+- arquivo inexistente retornou `404` e gerou JSON;
+- imagem sem texto retornou `400` e gerou JSON;
+- indisponibilidade simulada do Tesseract retornou `503` e gerou JSON;
+- caminho correto do Tesseract foi restaurado;
+- sintaxe validada com `py_compile`;
+- aplicação importada com sucesso;
+- registros de teste permaneceram ignorados pelo Git.
 
 ### Decisões técnicas
 
-- Foi criada uma exceção específica para representar documentos sem texto digital.
-- O processador automático captura `DocumentoSemTextoDigitalError` e aciona o OCR sem depender da comparação de mensagens de erro.
-- PDFs com camada de texto continuam usando PyMuPDF.
-- PDFs sem camada de texto e imagens usam Tesseract OCR.
-- A resposta informa o mecanismo utilizado: `pymupdf` ou `tesseract`.
+- um JSON independente é criado por execução;
+- UUID evita colisão entre registros;
+- horário é armazenado em ISO 8601 com fuso;
+- registros de execução não são enviados ao repositório;
+- o serviço de registro foi separado da rota.
 
-### Limitações conhecidas
+### Limitações
 
-- O arquivo precisa ter sido enviado previamente para a pasta `input/`.
-- A precisão do OCR depende da qualidade visual do documento.
-- O caminho do Tesseract ainda está configurado para o ambiente Windows local.
-- Os testes atuais são manuais pelo Swagger.
-- Arquivos de saída ainda não possuem identificador único.
-- Arquivos com o mesmo nome podem sobrescrever versões anteriores.
-- Ainda não há integração com N8N, banco de dados ou deploy.
+- não existe endpoint para consultar o histórico;
+- registros ainda não são consolidados;
+- não há rotação ou limpeza automática;
+- ainda não existem testes automatizados.
 
-## v0.4.0 — OCR de imagens e PDFs escaneados
+## [0.5.0] - 2026-07-29
 
 ### Adicionado
 
-- Dependências `pytesseract` e `Pillow`.
-- Integração com o motor externo Tesseract OCR.
-- Serviço `app/services/extrator_ocr.py`.
-- Modelo de resposta `OCRResposta`.
-- Endpoint `POST /documentos/{nome_arquivo}/ocr`.
-- OCR de arquivos PNG, JPG e JPEG.
-- OCR de PDFs escaneados.
-- Reconhecimento de texto em português e inglês.
-- Renderização das páginas de PDFs em imagem com PyMuPDF.
-- Geração de arquivos TXT na pasta `output/`.
-- Retorno da quantidade de páginas e caracteres reconhecidos.
-- Tratamento de arquivos inexistentes.
-- Tratamento de imagens inválidas.
-- Tratamento de OCR sem texto reconhecido.
-- Tratamento da ausência do executável Tesseract.
+- exceção `DocumentoSemTextoDigitalError`;
+- arquivo `app/exceptions.py`;
+- serviço `app/services/processador_automatico.py`;
+- modelo `ProcessamentoAutomaticoResposta`;
+- endpoint de processamento automático;
+- fallback de PyMuPDF para Tesseract;
+- OCR direto para imagens;
+- campo com o mecanismo utilizado.
 
 ### Validado
 
-- OCR de PDF escaneado com texto.
-- OCR de imagem JPG.
-- Reconhecimento de 1.097 caracteres em uma imagem.
-- Geração de arquivos TXT legíveis.
-- Resposta HTTP `200 OK` para OCR concluído.
-- Resposta HTTP `404 Not Found` para arquivo inexistente.
-- Resposta HTTP `400 Bad Request` para imagem sem texto.
-- Rejeição de arquivo TXT durante o upload.
-- Preservação dos fluxos anteriores de upload e extração digital.
+- PDF digital com PyMuPDF;
+- PDF escaneado com Tesseract;
+- imagem com Tesseract;
+- arquivo inexistente com `404`.
 
-### Decisões técnicas
-
-- O executável do Tesseract foi configurado por caminho explícito porque não estava disponível no `PATH` do Windows.
-- O OCR utiliza os idiomas `por+eng`.
-- PDFs escaneados são renderizados em resolução ampliada antes do reconhecimento.
-- A validação considera apenas texto efetivamente reconhecido, evitando falsos positivos em imagens sem conteúdo.
-
-### Limitações conhecidas
-
-- A precisão depende da resolução, contraste, rotação e nitidez do documento.
-- O caminho do Tesseract ainda está configurado para o ambiente Windows local.
-- Ainda não há escolha automática entre extração digital e OCR.
-- Os testes atuais são manuais pelo Swagger.
-- Arquivos de saída ainda não possuem identificador único.
-- Arquivos com o mesmo nome podem sobrescrever versões anteriores.
-
-## v0.3.0 — Extração de texto de PDFs digitais
+## [0.4.0]
 
 ### Adicionado
 
-- Dependência `PyMuPDF`.
-- Serviço `app/services/extrator_pdf.py`.
-- Modelo de resposta `ExtracaoResposta`.
-- Endpoint `POST /documentos/{nome_arquivo}/extrair-texto`.
-- Leitura de PDFs previamente armazenados na pasta `input/`.
-- Contagem da quantidade de páginas.
-- Contagem da quantidade de caracteres extraídos.
-- Geração de arquivo TXT na pasta `output/`.
-- Tratamento de arquivos inexistentes.
-- Identificação de PDFs sem camada de texto digital.
-- Tratamento de PDFs inválidos ou corrompidos.
+- OCR com Tesseract;
+- suporte a PNG, JPG e JPEG;
+- OCR de PDFs escaneados;
+- reconhecimento em português e inglês;
+- geração de TXT;
+- tratamento de imagem inválida;
+- resposta `503` para indisponibilidade do mecanismo.
 
-### Validado
-
-- Extração de texto de um PDF digital com 11 páginas.
-- Extração de 14.943 caracteres.
-- Geração de arquivo TXT legível.
-- Resposta HTTP `200 OK` para extração bem-sucedida.
-- Resposta HTTP `404 Not Found` para arquivo inexistente.
-- Resposta HTTP `400 Bad Request` para PDF composto apenas por imagem.
-- Mensagem indicando que o documento exige OCR.
-
-### Bug identificado e corrigido
-
-- A primeira implementação adicionava cabeçalhos de página antes de verificar se havia texto real.
-- Cabeçalhos como `--- Página 1 ---` poderiam ser confundidos com conteúdo extraído.
-- A validação foi refatorada para separar o texto real do texto formatado.
-- PDFs escaneados passaram a ser identificados corretamente, sem falso positivo.
-
-### Limitações conhecidas
-
-- Ainda não há OCR.
-- Imagens ainda não são processadas.
-- PDFs escaneados são identificados, mas ainda não têm o texto extraído.
-- Os testes atuais são manuais pelo Swagger.
-- Arquivos de saída ainda não possuem identificador único.
-- Arquivos com o mesmo nome podem sobrescrever versões anteriores.
-
-## v0.2.0 — Upload e armazenamento de documentos
+## [0.3.0]
 
 ### Adicionado
 
-- Endpoint `POST /documentos/upload`.
-- Recebimento de arquivos por `multipart/form-data`.
-- Validação de extensões permitidas.
-- Armazenamento local na pasta `input/`.
-- Sanitização básica do nome do arquivo.
-- Cálculo do tamanho do arquivo em bytes.
-- Modelo de resposta `UploadResposta`.
-- Tratamento de arquivos vazios.
-- Resposta HTTP `201 Created` para uploads válidos.
+- extração de PDFs digitais com PyMuPDF;
+- contagem de páginas e caracteres;
+- geração de TXT;
+- tratamento de arquivo inexistente;
+- identificação de PDF sem texto digital.
 
-### Validado
+### Corrigido
 
-- Upload real de um arquivo PDF.
-- Persistência do PDF na pasta `input/`.
-- Retorno de nome, tipo de conteúdo, tamanho e caminho.
-- Rejeição de arquivo TXT.
-- Resposta HTTP `400 Bad Request` para extensão inválida.
-- Arquivo rejeitado não foi armazenado.
+- cabeçalhos do TXT deixaram de contar como texto real;
+- PDFs escaneados deixaram de gerar falso positivo.
 
-### Limitações conhecidas
-
-- O conteúdo interno do arquivo ainda não é validado.
-- Ainda não há extração de texto ou OCR.
-- Arquivos com o mesmo nome podem sobrescrever versões anteriores.
-- Os testes atuais são manuais pelo Swagger.
-
-## v0.1.0 — Contrato inicial da API
+## [0.2.0]
 
 ### Adicionado
 
-- Aplicação FastAPI.
-- Endpoint `GET /`.
-- Endpoint `POST /documentos/processar`.
-- Modelos Pydantic de entrada e saída.
-- Validação de extensões por regra de negócio.
-- Tratamento de `ValueError` como resposta HTTP `400`.
-- Documentação automática em `/docs`.
+- upload real;
+- armazenamento em `input/`;
+- sanitização do nome;
+- cálculo do tamanho;
+- rejeição de arquivo vazio;
+- resposta `201`.
 
-### Validado
+## [0.1.0]
 
-- Metadados de PDF aceitos com HTTP `202 Accepted`.
-- Metadados de XLSX rejeitados com HTTP `400 Bad Request`.
+### Adicionado
+
+- aplicação FastAPI;
+- rota de verificação;
+- recebimento de metadados;
+- modelos Pydantic;
+- validação de extensões;
+- documentação Swagger;
+- tratamento inicial de erros.
