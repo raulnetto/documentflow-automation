@@ -2,6 +2,91 @@
 
 Todas as mudanças relevantes deste projeto serão documentadas neste arquivo.
 
+## [0.7.0] - 2026-07-30
+
+### Adicionado
+
+- pasta `tests/`;
+- arquivo `tests/test_api.py`;
+- arquivo `tests/test_processador_automatico.py`;
+- arquivo `tests/test_registro_processamento.py`;
+- suíte automatizada com 11 testes;
+- testes da rota raiz;
+- teste da versão anunciada pela API;
+- testes da rota automática para respostas `200`, `400`, `404` e `503`;
+- testes do processador automático para PDF digital, fallback para OCR e imagens;
+- testes para arquivo inexistente e extensão não suportada;
+- teste isolado do serviço de registro JSON;
+- uso de `tmp_path` para diretórios temporários;
+- uso de `monkeypatch` para substituir dependências durante os testes;
+- arquivo `requirements-dev.txt`;
+- declaração do `pytest==9.1.1` nas dependências de desenvolvimento.
+
+### Alterado
+
+- versão da API atualizada de `0.5.0` para `0.7.0`;
+- rota raiz passou a anunciar `0.7.0`;
+- resposta do processamento automático voltou a incluir `id_registro` e `caminho_registro`;
+- criação do registro de sucesso foi restaurada antes da montagem da resposta;
+- erros `400`, `404` e `503` passaram a ser verificados automaticamente;
+- registros dos erros `400`, `404` e `503` passaram a ser protegidos por testes;
+- fluxo de desenvolvimento passou a utilizar branch específica para a versão.
+
+### Corrigido
+
+- ausência da variável `registro` antes do retorno de sucesso;
+- resposta Pydantic sem os campos obrigatórios `id_registro` e `caminho_registro`;
+- erro `400` que era devolvido sem persistir o registro correspondente;
+- identidade da API que ainda permanecia em `0.5.0`;
+- problemas de indentação e escopo nos testes;
+- funções auxiliares de teste que estavam fora do teste principal;
+- variáveis locais como `caminho_txt` e `registro_criado` inacessíveis por escopo incorreto.
+
+### Validado
+
+- rota raiz retorna `200`;
+- versão da rota raiz é `0.7.0`;
+- processamento automático retorna `200`;
+- arquivo inexistente retorna `404` e registra a falha;
+- conteúdo inválido retorna `400` e registra a falha;
+- indisponibilidade do Tesseract retorna `503` e registra a falha;
+- PDF digital usa PyMuPDF;
+- PDF sem texto digital usa fallback para Tesseract;
+- imagem usa OCR diretamente;
+- arquivo inexistente gera `FileNotFoundError`;
+- extensão proibida gera `ValueError`;
+- registro JSON é criado em pasta temporária;
+- nenhum documento pessoal é usado pela suíte;
+- execução completa com `11 passed`.
+
+### Decisões técnicas
+
+- testes de rota usam `TestClient`;
+- serviços reais são substituídos por funções controladas com `monkeypatch`;
+- arquivos temporários são criados com `tmp_path`;
+- testes de unidade não executam OCR real;
+- `requirements-dev.txt` inclui `requirements.txt` com `-r requirements.txt`;
+- dependências de produção e desenvolvimento foram separadas;
+- a versão anunciada passou a ser protegida por teste.
+
+### Conhecimento aplicado
+
+- estrutura visual de indentação;
+- escopo de variáveis locais;
+- funções internas de teste;
+- mocks e substituição de dependências;
+- regressão automatizada;
+- diagnóstico por mensagens do pytest;
+- diferenciação entre falha do código e falha da expectativa do teste.
+
+### Limitações
+
+- existe um aviso de depreciação na integração do TestClient;
+- ainda não há cobertura automatizada de todas as rotas legadas;
+- ainda não há pipeline de integração contínua;
+- ainda não há relatório de cobertura;
+- ainda não há integração com N8N ou webhook externo.
+
 ## [0.6.0] - 2026-07-29
 
 ### Adicionado
@@ -46,7 +131,7 @@ Todas as mudanças relevantes deste projeto serão documentadas neste arquivo.
 - não existe endpoint para consultar o histórico;
 - registros ainda não são consolidados;
 - não há rotação ou limpeza automática;
-- ainda não existem testes automatizados.
+- ainda não existiam testes automatizados.
 
 ## [0.5.0] - 2026-07-29
 
