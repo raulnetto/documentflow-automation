@@ -4,6 +4,10 @@ Pipeline de automação de documentos desenvolvida em Python com FastAPI.
 
 O projeto recebe arquivos, valida o formato, armazena os documentos, escolhe automaticamente entre extração digital e OCR, gera arquivos de texto e mantém registros estruturados dos processamentos.
 
+## Demonstração
+
+![Demonstração do DocumentFlow](docs/assets/documentflow-demo.gif)
+
 ## Estado atual
 
 Versão atual: **v0.7.0**
