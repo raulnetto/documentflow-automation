@@ -9,6 +9,8 @@ from app.models import (
     OCRResposta,
     ProcessamentoAutomaticoResposta,
     UploadResposta,
+    WebhookProcessamentoEntrada,
+    WebhookProcessamentoResposta,
 )
 from app.services.armazenamento import salvar_upload
 from app.services.extrator_ocr import extrair_texto_ocr
@@ -23,7 +25,7 @@ from app.services.registro_processamento import (
 app = FastAPI(
     title="Automação de Documentos",
     description="API para processamento automatizado de documentos.",
-    version="0.7.0",
+    version="0.8.0",
 )
 
 
@@ -34,7 +36,7 @@ def verificar_api() -> dict[str, str]:
     return {
         "status": "online",
         "servico": "Automação de Documentos",
-        "versao": "0.7.0",
+        "versao": "0.8.0",
     }
 
 
@@ -257,6 +259,93 @@ def processar_documento_automaticamente(
             arquivo_origem=caminho_arquivo.name,
             status="erro",
             mensagem_erro=str(erro),
+        )
+
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(erro),
+        ) from erro
+
+@app.post(
+    "/webhooks/processar-documento",
+    response_model=WebhookProcessamentoResposta,
+    status_code=status.HTTP_200_OK,
+)
+def processar_documento_via_webhook(
+    dados: WebhookProcessamentoEntrada,
+) -> WebhookProcessamentoResposta:
+    """Recebe uma solicitação externa e processa um arquivo já armazenado."""
+
+    caminho_arquivo = Path("input") / Path(dados.nome_arquivo).name
+
+    try:
+        (
+            caminho_txt,
+            paginas,
+            caracteres,
+            mecanismo,
+        ) = processar_automaticamente(caminho_arquivo)
+
+        registro = criar_registro_processamento(
+            arquivo_origem=caminho_arquivo.name,
+            status="sucesso",
+            mecanismo=mecanismo,
+            arquivo_saida=caminho_txt.name,
+            quantidade_paginas=paginas,
+            quantidade_caracteres=caracteres,
+            origem=dados.origem,
+            id_fluxo=dados.id_fluxo,
+        )
+
+        return WebhookProcessamentoResposta(
+            status="processamento_concluido",
+            origem=dados.origem,
+            id_fluxo=dados.id_fluxo,
+            arquivo_origem=caminho_arquivo.name,
+            arquivo_texto=caminho_txt.name,
+            quantidade_paginas=paginas,
+            quantidade_caracteres=caracteres,
+            mecanismo=mecanismo,
+            id_registro=registro["id"],
+            caminho_registro=registro["caminho_registro"],
+        )
+
+    except FileNotFoundError as erro:
+        criar_registro_processamento(
+            arquivo_origem=caminho_arquivo.name,
+            status="erro",
+            mensagem_erro=str(erro),
+            origem=dados.origem,
+            id_fluxo=dados.id_fluxo,
+        )
+
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(erro),
+        ) from erro
+
+    except RuntimeError as erro:
+        criar_registro_processamento(
+            arquivo_origem=caminho_arquivo.name,
+            status="erro",
+            mecanismo="tesseract",
+            mensagem_erro=str(erro),
+            origem=dados.origem,
+            id_fluxo=dados.id_fluxo,
+        )
+
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(erro),
+        ) from erro
+
+    except ValueError as erro:
+        criar_registro_processamento(
+            arquivo_origem=caminho_arquivo.name,
+            status="erro",
+            mensagem_erro=str(erro),
+            origem=dados.origem,
+            id_fluxo=dados.id_fluxo,
         )
 
         raise HTTPException(

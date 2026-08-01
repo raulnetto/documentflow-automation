@@ -17,6 +17,8 @@ def criar_registro_processamento(
     quantidade_paginas: int | None = None,
     quantidade_caracteres: int | None = None,
     mensagem_erro: str | None = None,
+    origem: str | None = None,
+    id_fluxo: str | None = None,
 ) -> dict[str, Any]:
     """Cria e persiste um registro estruturado de processamento."""
 
@@ -26,6 +28,8 @@ def criar_registro_processamento(
         "id": identificador,
         "data_hora": datetime.now().astimezone().isoformat(),
         "arquivo_origem": arquivo_origem,
+        "origem": origem,
+        "id_fluxo": id_fluxo,
         "status": status,
         "mecanismo": mecanismo,
         "arquivo_saida": arquivo_saida,

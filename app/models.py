@@ -70,3 +70,24 @@ class ProcessamentoAutomaticoResposta(BaseModel):
     mecanismo: str
     id_registro: str
     caminho_registro: str
+
+class WebhookProcessamentoEntrada(BaseModel):
+    """Dados recebidos por uma automação externa."""
+
+    nome_arquivo: str
+    origem: str = "n8n"
+    id_fluxo: str | None = None
+
+class WebhookProcessamentoResposta(BaseModel):
+    """Resposta devolvida para uma automação externa."""
+
+    status: str
+    origem: str
+    id_fluxo: str | None
+    arquivo_origem: str
+    arquivo_texto: str
+    quantidade_paginas: int
+    quantidade_caracteres: int
+    mecanismo: str
+    id_registro: str
+    caminho_registro: str
