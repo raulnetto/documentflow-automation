@@ -2,7 +2,7 @@
 
 Pipeline de automação de documentos desenvolvida em Python com FastAPI.
 
-O projeto recebe arquivos, valida o formato, armazena os documentos, escolhe automaticamente entre extração digital e OCR, gera arquivos de texto e mantém registros estruturados dos processamentos.
+O projeto recebe arquivos, valida formatos, armazena documentos, escolhe automaticamente entre extração digital e OCR, gera arquivos de texto, mantém registros estruturados e aceita chamadas externas por webhook com rastreabilidade de origem e fluxo.
 
 ## Demonstração
 
@@ -10,7 +10,7 @@ O projeto recebe arquivos, valida o formato, armazena os documentos, escolhe aut
 
 ## Estado atual
 
-Versão atual: **v0.7.0**
+Versão atual: **v0.8.0**
 
 A aplicação já consegue:
 
@@ -26,7 +26,10 @@ A aplicação já consegue:
 - registrar data, hora, mecanismo, páginas, caracteres e mensagens de erro;
 - responder com códigos HTTP adequados;
 - documentar as rotas com OpenAPI e Swagger;
-- validar automaticamente os principais comportamentos com pytest.
+- validar automaticamente os principais comportamentos com pytest;
+- receber solicitações externas por webhook;
+- preservar `origem` e `id_fluxo`;
+- devolver respostas estruturadas para automações como N8N.
 
 ## Tecnologias
 
@@ -48,7 +51,7 @@ A aplicação já consegue:
 - tmp_path
 - Git e GitHub
 
-## Fluxo atual
+## Fluxo principal
 
 ```text
 arquivo enviado
@@ -64,22 +67,50 @@ arquivo enviado
 → API devolve status, mecanismo e referência do registro
 ```
 
-## Endpoint principal
+## Processamento automático
+
+Endpoint:
 
 ```text
 POST /documentos/{nome_arquivo}/processar-automaticamente
 ```
 
-A resposta de sucesso informa:
+## Webhook para automações externas
 
-- arquivo de origem;
-- arquivo TXT gerado;
-- quantidade de páginas;
-- quantidade de caracteres;
-- caminho do arquivo salvo;
-- mecanismo utilizado;
-- identificador do registro;
-- caminho do registro JSON.
+Endpoint:
+
+```text
+POST /webhooks/processar-documento
+```
+
+Exemplo de entrada:
+
+```json
+{
+  "nome_arquivo": "sistemas_crm.pdf",
+  "origem": "n8n",
+  "id_fluxo": "workflow-001"
+}
+```
+
+Fluxo:
+
+```text
+N8N ou outro sistema envia JSON
+→ Pydantic valida o contrato
+→ API localiza o arquivo em input/
+→ processamento automático é executado
+→ sucesso ou falha é registrado
+→ origem e id_fluxo são preservados
+→ resposta estruturada volta para a automação
+```
+
+O webhook trata:
+
+- `200` para processamento concluído;
+- `400` para conteúdo inválido;
+- `404` para arquivo inexistente;
+- `503` para indisponibilidade do mecanismo externo.
 
 ## Registros estruturados
 
@@ -88,6 +119,8 @@ Cada processamento gera um arquivo JSON em `registros/` com:
 - `id`;
 - `data_hora`;
 - `arquivo_origem`;
+- `origem`;
+- `id_fluxo`;
 - `status`;
 - `mecanismo`;
 - `arquivo_saida`;
@@ -99,16 +132,15 @@ Os registros produzidos durante a execução são ignorados pelo Git. Apenas `re
 
 ## Testes automatizados
 
-A v0.7 adiciona uma suíte com **11 testes automatizados**.
+A v0.8 possui **15 testes automatizados**.
 
 ### API
 
 - rota raiz retorna `200`;
-- versão anunciada é `0.7.0`;
-- processamento automático retorna `200`;
-- arquivo inexistente retorna `404`;
-- conteúdo inválido retorna `400`;
-- indisponibilidade do Tesseract retorna `503`;
+- versão anunciada é `0.8.0`;
+- processamento automático retorna `200`, `400`, `404` e `503`;
+- webhook retorna `200`, `400`, `404` e `503`;
+- webhook preserva `origem` e `id_fluxo`;
 - erros geram registros estruturados.
 
 ### Processador automático
@@ -124,23 +156,14 @@ A v0.7 adiciona uma suíte com **11 testes automatizados**.
 - JSON é criado corretamente;
 - UUID, status, mecanismo e demais campos são validados;
 - testes usam diretório temporário;
-- arquivos reais de `input/`, `output/` e `registros/` não são alterados.
+- arquivos reais não são alterados.
 
 ## Como instalar
 
-Dependências da aplicação:
-
 ```powershell
 python -m pip install -r requirements.txt
-```
-
-Dependências de desenvolvimento e testes:
-
-```powershell
 python -m pip install -r requirements-dev.txt
 ```
-
-O arquivo `requirements-dev.txt` inclui as dependências da aplicação e o pytest.
 
 ## Como executar os testes
 
@@ -148,13 +171,23 @@ O arquivo `requirements-dev.txt` inclui as dependências da aplicação e o pyte
 python -m pytest -v
 ```
 
-Resultado validado na v0.7:
+Resultado validado na v0.8:
 
 ```text
-11 passed
+15 passed
 ```
 
-Existe atualmente um aviso de depreciação vindo da integração entre FastAPI, Starlette TestClient e httpx. O aviso não invalida os testes e será tratado separadamente.
+## Como executar a API
+
+```powershell
+python -m uvicorn app.main:app --reload
+```
+
+Swagger:
+
+```text
+http://127.0.0.1:8000/docs
+```
 
 ## Estrutura principal
 
@@ -176,6 +209,10 @@ tests/
 ├── test_processador_automatico.py
 └── test_registro_processamento.py
 
+docs/
+└── assets/
+    └── documentflow-demo.gif
+
 input/
 output/
 registros/
@@ -186,46 +223,28 @@ requirements-dev.txt
 .gitignore
 ```
 
-## Fluxo de desenvolvimento
-
-```text
-main estável
-→ branch da versão
-→ implementação
-→ testes
-→ documentação
-→ commit
-→ merge na main
-→ push
-```
-
-Branch utilizada na v0.7:
-
-```text
-feat/v0.7-testes-automatizados
-```
-
 ## Limitações atuais
 
-- caminho do Tesseract ainda depende da configuração local;
+- o webhook recebe o nome de um arquivo já armazenado em `input/`;
+- o envio binário direto pelo N8N ainda não foi implementado;
+- a integração visual dentro do N8N ainda não foi montada;
+- o caminho do Tesseract depende da configuração local;
 - arquivos com nomes repetidos podem sobrescrever saídas;
 - não há banco de dados;
 - não há autenticação;
-- não há integração com N8N;
-- não há webhooks externos;
 - não há deploy;
 - não há monitoramento contínuo;
-- ainda existe um aviso de depreciação no TestClient.
+- permanece um aviso de depreciação no TestClient.
 
 ## Próximo marco sugerido
 
-### v0.8 — Webhook e integração com N8N
+### v0.9 — Fluxo real no N8N
 
 Objetivos:
 
-- criar uma entrada por webhook;
-- permitir que o N8N envie documentos ou comandos à API;
-- tratar fluxos de sucesso e erro no N8N;
-- devolver respostas estruturadas;
-- preparar uma automação ponta a ponta;
-- documentar o fluxo de integração entre sistemas.
+- criar um workflow no N8N;
+- disparar o webhook do DocumentFlow;
+- tratar respostas de sucesso e falha;
+- preservar `id_fluxo` entre os nós;
+- gerar uma saída útil para outra etapa;
+- documentar o fluxo ponta a ponta.

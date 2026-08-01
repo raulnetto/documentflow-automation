@@ -22,7 +22,7 @@ def test_rota_raiz_retorna_servico_disponivel() -> None:
 
     assert "status" in corpo
     assert "servico" in corpo
-    assert corpo["versao"] == "0.7.0"
+    assert corpo["versao"] == "0.8.0"
 
 
 def test_processamento_automatico_retorna_sucesso(
@@ -255,3 +255,248 @@ def test_processamento_automatico_retorna_503(
     assert "Tesseract não está disponível" in str(
         registro_criado["mensagem_erro"]
     )
+def test_webhook_processa_documento_com_sucesso(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Verifica o processamento iniciado por uma automação externa."""
+
+    caminho_txt = Path("output/documento_extraido.txt")
+    registro_criado: dict[str, Any] = {}
+
+    def processar_falso(
+        caminho_arquivo: Path,
+    ) -> tuple[Path, int, int, str]:
+        assert caminho_arquivo == Path("input/documento.pdf")
+
+        return (
+            caminho_txt,
+            4,
+            2000,
+            "pymupdf",
+        )
+
+    def criar_registro_falso(
+        **dados: Any,
+    ) -> dict[str, str]:
+        registro_criado.update(dados)
+
+        return {
+            "id": "registro-webhook-001",
+            "caminho_registro": (
+                "registros/registro-webhook-001.json"
+            ),
+        }
+
+    monkeypatch.setattr(
+        main_module,
+        "processar_automaticamente",
+        processar_falso,
+    )
+
+    monkeypatch.setattr(
+        main_module,
+        "criar_registro_processamento",
+        criar_registro_falso,
+    )
+
+    resposta = client.post(
+        "/webhooks/processar-documento",
+        json={
+            "nome_arquivo": "documento.pdf",
+            "origem": "n8n",
+            "id_fluxo": "workflow-001",
+        },
+    )
+
+    assert resposta.status_code == 200
+
+    corpo = resposta.json()
+
+    assert corpo["status"] == "processamento_concluido"
+    assert corpo["origem"] == "n8n"
+    assert corpo["id_fluxo"] == "workflow-001"
+    assert corpo["arquivo_origem"] == "documento.pdf"
+    assert corpo["mecanismo"] == "pymupdf"
+    assert corpo["id_registro"] == "registro-webhook-001"
+
+    assert registro_criado["origem"] == "n8n"
+    assert registro_criado["id_fluxo"] == "workflow-001"
+    assert registro_criado["status"] == "sucesso"
+
+def test_webhook_retorna_404_e_registra_origem(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Verifica o webhook quando o arquivo solicitado não existe."""
+
+    registro_criado: dict[str, Any] = {}
+
+    def processar_arquivo_inexistente(
+        caminho_arquivo: Path,
+    ) -> tuple[Path, int, int, str]:
+        raise FileNotFoundError(
+            f"O arquivo '{caminho_arquivo}' não foi encontrado."
+        )
+
+    def criar_registro_falso(
+        **dados: Any,
+    ) -> dict[str, str]:
+        registro_criado.update(dados)
+
+        return {
+            "id": "registro-webhook-404",
+            "caminho_registro": (
+                "registros/registro-webhook-404.json"
+            ),
+        }
+
+    monkeypatch.setattr(
+        main_module,
+        "processar_automaticamente",
+        processar_arquivo_inexistente,
+    )
+
+    monkeypatch.setattr(
+        main_module,
+        "criar_registro_processamento",
+        criar_registro_falso,
+    )
+
+    resposta = client.post(
+        "/webhooks/processar-documento",
+        json={
+            "nome_arquivo": "arquivo_inexistente.pdf",
+            "origem": "n8n",
+            "id_fluxo": "workflow-erro-001",
+        },
+    )
+
+    assert resposta.status_code == 404
+    assert "não foi encontrado" in resposta.json()["detail"]
+
+    assert registro_criado["arquivo_origem"] == (
+        "arquivo_inexistente.pdf"
+    )
+    assert registro_criado["origem"] == "n8n"
+    assert registro_criado["id_fluxo"] == "workflow-erro-001"
+    assert registro_criado["status"] == "erro"
+
+def test_webhook_retorna_400_e_registra_origem(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Verifica o webhook quando o documento não possui conteúdo válido."""
+
+    registro_criado: dict[str, Any] = {}
+
+    def processar_conteudo_invalido(
+        caminho_arquivo: Path,
+    ) -> tuple[Path, int, int, str]:
+        raise ValueError(
+            f"O arquivo '{caminho_arquivo.name}' "
+            "não possui texto reconhecível."
+        )
+
+    def criar_registro_falso(
+        **dados: Any,
+    ) -> dict[str, str]:
+        registro_criado.update(dados)
+
+        return {
+            "id": "registro-webhook-400",
+            "caminho_registro": (
+                "registros/registro-webhook-400.json"
+            ),
+        }
+
+    monkeypatch.setattr(
+        main_module,
+        "processar_automaticamente",
+        processar_conteudo_invalido,
+    )
+
+    monkeypatch.setattr(
+        main_module,
+        "criar_registro_processamento",
+        criar_registro_falso,
+    )
+
+    resposta = client.post(
+        "/webhooks/processar-documento",
+        json={
+            "nome_arquivo": "imagem_sem_texto.jpg",
+            "origem": "n8n",
+            "id_fluxo": "workflow-erro-400",
+        },
+    )
+
+    assert resposta.status_code == 400
+    assert "não possui texto reconhecível" in (
+        resposta.json()["detail"]
+    )
+
+    assert registro_criado["arquivo_origem"] == (
+        "imagem_sem_texto.jpg"
+    )
+    assert registro_criado["origem"] == "n8n"
+    assert registro_criado["id_fluxo"] == "workflow-erro-400"
+    assert registro_criado["status"] == "erro"
+
+def test_webhook_retorna_503_e_registra_origem(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Verifica o webhook quando o mecanismo externo fica indisponível."""
+
+    registro_criado: dict[str, Any] = {}
+
+    def processar_com_servico_indisponivel(
+        caminho_arquivo: Path,
+    ) -> tuple[Path, int, int, str]:
+        raise RuntimeError(
+            f"O Tesseract não está disponível para "
+            f"processar '{caminho_arquivo.name}'."
+        )
+
+    def criar_registro_falso(
+        **dados: Any,
+    ) -> dict[str, str]:
+        registro_criado.update(dados)
+
+        return {
+            "id": "registro-webhook-503",
+            "caminho_registro": (
+                "registros/registro-webhook-503.json"
+            ),
+        }
+
+    monkeypatch.setattr(
+        main_module,
+        "processar_automaticamente",
+        processar_com_servico_indisponivel,
+    )
+
+    monkeypatch.setattr(
+        main_module,
+        "criar_registro_processamento",
+        criar_registro_falso,
+    )
+
+    resposta = client.post(
+        "/webhooks/processar-documento",
+        json={
+            "nome_arquivo": "documento_escaneado.pdf",
+            "origem": "n8n",
+            "id_fluxo": "workflow-erro-503",
+        },
+    )
+
+    assert resposta.status_code == 503
+    assert "Tesseract não está disponível" in (
+        resposta.json()["detail"]
+    )
+
+    assert registro_criado["arquivo_origem"] == (
+        "documento_escaneado.pdf"
+    )
+    assert registro_criado["origem"] == "n8n"
+    assert registro_criado["id_fluxo"] == "workflow-erro-503"
+    assert registro_criado["status"] == "erro"
+    assert registro_criado["mecanismo"] == "tesseract"
