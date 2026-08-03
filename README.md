@@ -1,16 +1,18 @@
 # DocumentFlow Automation
 
-Pipeline de automação de documentos desenvolvida em Python com FastAPI.
+Pipeline de automação documental desenvolvida em Python com FastAPI.
 
-O projeto recebe arquivos, valida formatos, armazena documentos, escolhe automaticamente entre extração digital e OCR, gera arquivos de texto, mantém registros estruturados e aceita chamadas externas por webhook com rastreabilidade de origem e fluxo.
+O projeto recebe documentos, valida formatos, escolhe automaticamente entre extração digital e OCR, gera arquivos de texto, registra sucessos e falhas e pode ser acionado por um workflow real do N8N.
 
 ## Demonstração
 
 ![Demonstração do DocumentFlow](docs/assets/documentflow-demo.gif)
 
+> O GIF apresenta o fluxo principal da API. A integração com N8N está documentada em [`n8n/README.md`](n8n/README.md) e pode ser reproduzida com o workflow exportado.
+
 ## Estado atual
 
-Versão atual: **v0.8.0**
+Versão atual: **v0.9.0**
 
 A aplicação já consegue:
 
@@ -24,12 +26,13 @@ A aplicação já consegue:
 - registrar sucessos e falhas em JSON;
 - identificar cada processamento com UUID;
 - registrar data, hora, mecanismo, páginas, caracteres e mensagens de erro;
-- responder com códigos HTTP adequados;
-- documentar as rotas com OpenAPI e Swagger;
-- validar automaticamente os principais comportamentos com pytest;
-- receber solicitações externas por webhook;
 - preservar `origem` e `id_fluxo`;
-- devolver respostas estruturadas para automações como N8N.
+- responder com códigos HTTP adequados;
+- disponibilizar documentação OpenAPI e Swagger;
+- receber solicitações externas por webhook;
+- ser acionada por um workflow real do N8N;
+- separar automaticamente os caminhos de sucesso e erro no N8N;
+- validar os principais comportamentos com 15 testes automatizados.
 
 ## Tecnologias
 
@@ -49,9 +52,43 @@ A aplicação já consegue:
 - TestClient
 - monkeypatch
 - tmp_path
+- N8N
+- Node.js e npm
 - Git e GitHub
 
-## Fluxo principal
+## Arquitetura atual
+
+```text
+Usuário ou automação
+        │
+        ▼
+FastAPI / Webhook
+        │
+        ▼
+Processador automático
+   ┌────┴────┐
+   ▼         ▼
+PyMuPDF   Tesseract
+   └────┬────┘
+        ▼
+    arquivo TXT
+        │
+        ▼
+  registro JSON
+```
+
+Com N8N:
+
+```text
+Manual Trigger
+→ Configurar Processamento
+→ Chamar DocumentFlow
+→ Validar Resposta
+   ├── statusCode 200 → Resultado - Sucesso
+   └── outro código  → Resultado - Erro
+```
+
+## Fluxo principal da API
 
 ```text
 arquivo enviado
@@ -67,17 +104,15 @@ arquivo enviado
 → API devolve status, mecanismo e referência do registro
 ```
 
-## Processamento automático
+## Endpoints principais
 
-Endpoint:
+### Processamento automático
 
 ```text
 POST /documentos/{nome_arquivo}/processar-automaticamente
 ```
 
-## Webhook para automações externas
-
-Endpoint:
+### Webhook para automações externas
 
 ```text
 POST /webhooks/processar-documento
@@ -87,30 +122,64 @@ Exemplo de entrada:
 
 ```json
 {
-  "nome_arquivo": "sistemas_crm.pdf",
+  "nome_arquivo": "documento_demo.pdf",
   "origem": "n8n",
   "id_fluxo": "workflow-001"
 }
 ```
 
-Fluxo:
+Exemplo de resposta de sucesso:
 
-```text
-N8N ou outro sistema envia JSON
-→ Pydantic valida o contrato
-→ API localiza o arquivo em input/
-→ processamento automático é executado
-→ sucesso ou falha é registrado
-→ origem e id_fluxo são preservados
-→ resposta estruturada volta para a automação
+```json
+{
+  "status": "processamento_concluido",
+  "origem": "n8n",
+  "id_fluxo": "workflow-001",
+  "arquivo_origem": "documento_demo.pdf",
+  "arquivo_texto": "documento_demo_ocr.txt",
+  "quantidade_paginas": 1,
+  "quantidade_caracteres": 1555,
+  "mecanismo": "tesseract",
+  "id_registro": "uuid-gerado",
+  "caminho_registro": "registros/uuid-gerado.json"
+}
 ```
 
 O webhook trata:
 
-- `200` para processamento concluído;
-- `400` para conteúdo inválido;
-- `404` para arquivo inexistente;
-- `503` para indisponibilidade do mecanismo externo.
+- `200` — processamento concluído;
+- `400` — conteúdo inválido;
+- `404` — arquivo inexistente;
+- `503` — mecanismo externo indisponível.
+
+## Integração com N8N
+
+A v0.9 adiciona um workflow real e exportável.
+
+Arquivos:
+
+```text
+n8n/
+├── README.md
+└── workflows/
+    └── documentflow-processamento.json
+```
+
+O workflow:
+
+1. inicia manualmente;
+2. define `nome_arquivo`, `origem` e `id_fluxo`;
+3. envia uma requisição HTTP para o webhook;
+4. recebe corpo, cabeçalhos e código HTTP;
+5. mantém respostas de erro no fluxo com `Never Error`;
+6. verifica se `statusCode == 200`;
+7. produz uma saída padronizada de sucesso ou erro.
+
+Documentação detalhada:
+
+```text
+n8n/README.md
+```
 
 ## Registros estruturados
 
@@ -132,12 +201,12 @@ Os registros produzidos durante a execução são ignorados pelo Git. Apenas `re
 
 ## Testes automatizados
 
-A v0.8 possui **15 testes automatizados**.
+A v0.9 mantém **15 testes automatizados**.
 
 ### API
 
 - rota raiz retorna `200`;
-- versão anunciada é `0.8.0`;
+- versão anunciada é `0.9.0`;
 - processamento automático retorna `200`, `400`, `404` e `503`;
 - webhook retorna `200`, `400`, `404` e `503`;
 - webhook preserva `origem` e `id_fluxo`;
@@ -151,33 +220,62 @@ A v0.8 possui **15 testes automatizados**.
 - arquivo inexistente gera `FileNotFoundError`;
 - extensão não suportada gera `ValueError`.
 
-### Registro de processamento
+### Registro
 
 - JSON é criado corretamente;
-- UUID, status, mecanismo e demais campos são validados;
-- testes usam diretório temporário;
-- arquivos reais não são alterados.
+- UUID, status e campos principais são validados;
+- o teste usa diretório temporário;
+- arquivos reais de execução não são alterados.
 
-## Como instalar
-
-```powershell
-python -m pip install -r requirements.txt
-python -m pip install -r requirements-dev.txt
-```
-
-## Como executar os testes
+Executar:
 
 ```powershell
 python -m pytest -v
 ```
 
-Resultado validado na v0.8:
+Resultado validado:
 
 ```text
 15 passed
 ```
 
-## Como executar a API
+Existe atualmente um aviso de depreciação vindo da integração entre FastAPI, Starlette TestClient e httpx. O aviso não invalida a suíte.
+
+## Instalação
+
+### Dependências da aplicação
+
+```powershell
+python -m pip install -r requirements.txt
+```
+
+### Dependências de desenvolvimento
+
+```powershell
+python -m pip install -r requirements-dev.txt
+```
+
+### Dependência externa de OCR
+
+O Tesseract OCR precisa estar instalado e configurado na máquina.
+
+### N8N
+
+O workflow foi executado localmente com Node.js, npm e:
+
+```powershell
+npx n8n
+```
+
+## Como executar
+
+### 1. Ativar o ambiente Python
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+### 2. Iniciar a API
 
 ```powershell
 python -m uvicorn app.main:app --reload
@@ -188,6 +286,33 @@ Swagger:
 ```text
 http://127.0.0.1:8000/docs
 ```
+
+### 3. Iniciar o N8N em outro terminal
+
+```powershell
+npx n8n
+```
+
+Editor:
+
+```text
+http://localhost:5678
+```
+
+### 4. Importar o workflow
+
+```text
+Import from File
+→ n8n/workflows/documentflow-processamento.json
+```
+
+### 5. Preparar um arquivo neutro de demonstração
+
+```text
+input/documento_demo.pdf
+```
+
+A pasta `input/` não é versionada.
 
 ## Estrutura principal
 
@@ -209,6 +334,11 @@ tests/
 ├── test_processador_automatico.py
 └── test_registro_processamento.py
 
+n8n/
+├── README.md
+└── workflows/
+    └── documentflow-processamento.json
+
 docs/
 └── assets/
     └── documentflow-demo.gif
@@ -223,28 +353,43 @@ requirements-dev.txt
 .gitignore
 ```
 
+## Privacidade
+
+Não são versionados:
+
+- documentos de entrada;
+- arquivos TXT gerados;
+- registros JSON produzidos;
+- documentos pessoais;
+- senhas, tokens ou credenciais.
+
+O endereço `127.0.0.1` representa apenas o próprio computador e não expõe endereço residencial ou IP público.
+
 ## Limitações atuais
 
-- o webhook recebe o nome de um arquivo já armazenado em `input/`;
-- o envio binário direto pelo N8N ainda não foi implementado;
-- a integração visual dentro do N8N ainda não foi montada;
-- o caminho do Tesseract depende da configuração local;
-- arquivos com nomes repetidos podem sobrescrever saídas;
+- o workflow usa gatilho manual;
+- o documento precisa existir previamente em `input/`;
+- API e N8N precisam estar rodando localmente;
+- não há upload binário direto pelo N8N;
 - não há banco de dados;
 - não há autenticação;
-- não há deploy;
-- não há monitoramento contínuo;
-- permanece um aviso de depreciação no TestClient.
+- não há idempotência ou política de repetição;
+- não há Docker;
+- não há deploy público;
+- não há dashboard;
+- o caminho do Tesseract ainda depende da configuração local.
 
 ## Próximo marco sugerido
 
-### v0.9 — Fluxo real no N8N
+### v0.10 — Persistência relacional e consulta de histórico
 
 Objetivos:
 
-- criar um workflow no N8N;
-- disparar o webhook do DocumentFlow;
-- tratar respostas de sucesso e falha;
-- preservar `id_fluxo` entre os nós;
-- gerar uma saída útil para outra etapa;
-- documentar o fluxo ponta a ponta.
+- criar uma base SQLite;
+- modelar a entidade `processamento`;
+- persistir sucessos e falhas no banco;
+- manter compatibilidade temporária com os registros JSON;
+- criar endpoints de consulta;
+- filtrar por status, mecanismo, origem e `id_fluxo`;
+- gerar consultas agregadas para apresentação acadêmica;
+- preparar a base para relatórios e dashboard.

@@ -1,0 +1,281 @@
+{
+  "name": "DocumentFlow - Processamento",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        48
+      ],
+      "id": "e41d6edf-fd59-43d9-869c-5023e3df2c46",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d3f3b57c-5091-435a-98ae-737b98979d54",
+              "leftValue": "={{ $json.statusCode }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        544,
+        48
+      ],
+      "id": "cf61ed6f-4893-4292-93d7-b50d055129d7",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cd658971-ffe4-4272-a8bc-16f021e9e567",
+              "name": "resultado",
+              "value": "sucesso",
+              "type": "string"
+            },
+            {
+              "id": "d8b9cb5f-3cfa-4529-a5f4-8fac2d5aae56",
+              "name": "mensagem",
+              "value": "Documento Processado com sucesso",
+              "type": "string"
+            },
+            {
+              "id": "2d4545ae-daca-4767-8398-688127e60db2",
+              "name": "arquivo",
+              "value": "={{ $json.body.arquivo_origem }}",
+              "type": "string"
+            },
+            {
+              "id": "bc625b84-73b0-4824-980d-723dc2324378",
+              "name": "mecanismo",
+              "value": "={{ $json.body.mecanismo }}",
+              "type": "string"
+            },
+            {
+              "id": "067d67d0-b171-46fd-9d5d-ae0bad3c72af",
+              "name": "id_fluxo",
+              "value": "={{ $json.body.id_fluxo }}",
+              "type": "string"
+            },
+            {
+              "id": "08fafe16-e1df-41fd-b9e1-f36fff558dcd",
+              "name": "id_registro",
+              "value": "={{ $json.body.id_registro }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        736,
+        -112
+      ],
+      "id": "e1b55c69-64c3-4f98-9d8c-1b16b3cc0f6d",
+      "name": "Resultado - Sucesso"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d933c67c-dc71-4701-97b0-11675dc1870f",
+              "name": "resultado",
+              "value": "erro",
+              "type": "string"
+            },
+            {
+              "id": "34cdc017-20bf-4702-b650-de24a298eb43",
+              "name": "mensagem",
+              "value": "={{ $json.body.detail }}",
+              "type": "string"
+            },
+            {
+              "id": "536f1d27-473a-410d-b7b4-f4c7462efbc0",
+              "name": "codigo_http",
+              "value": "={{ $json.statusCode }}",
+              "type": "string"
+            },
+            {
+              "id": "677165e1-4273-4667-a692-355a7c491738",
+              "name": "arquivo",
+              "value": "={{ $('Configurar Processamento').item.json.nome_arquivo }}",
+              "type": "string"
+            },
+            {
+              "id": "be41d299-9b4e-4ac3-8f2f-5b2f20fc47fa",
+              "name": "origem",
+              "value": "={{ $('Configurar Processamento').item.json.origem }}",
+              "type": "string"
+            },
+            {
+              "id": "c419453a-601e-4ec2-906f-9f55d9d1b4d4",
+              "name": "id_fluxo",
+              "value": "={{ $('Configurar Processamento').item.json.id_fluxo }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        736,
+        112
+      ],
+      "id": "fd192fd0-ef8d-4f77-9df9-e6f1114eecef",
+      "name": "Resultado - Erro"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "63a40c4d-d3c3-4e0a-8027-6863ab9caf98",
+              "name": "nome_arquivo",
+              "value": "documento_demo.pdf",
+              "type": "string"
+            },
+            {
+              "id": "7ceb2530-8973-46db-b777-81040066d312",
+              "name": "origem",
+              "value": "n8n",
+              "type": "string"
+            },
+            {
+              "id": "34e97442-6f41-46e1-a9e4-fbab299dc97a",
+              "name": "id_fluxo",
+              "value": "workflow-001",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        144,
+        48
+      ],
+      "id": "c15f2a6b-6500-4d81-bd51-ebd3f9c24155",
+      "name": "Configurar Processamento"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:8000/webhooks/processar-documento",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"nome_arquivo\": \"{{ $json.nome_arquivo }}\",\n  \"origem\": \"{{ $json.origem }}\",\n  \"id_fluxo\": \"{{ $json.id_fluxo }}\"\n}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        352,
+        48
+      ],
+      "id": "f7d3ce60-f31b-4565-87c2-863e3fe18dc2",
+      "name": "Chamar DocumentFlow"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Configurar Processamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Resultado - Sucesso",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resultado - Erro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configurar Processamento": {
+      "main": [
+        [
+          {
+            "node": "Chamar DocumentFlow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chamar DocumentFlow": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "06d130f8-a035-4fc5-b0c3-ecfc1b14ba92",
+  "meta": {
+    "instanceId": "9e34aa49279d0a8db413b11662962ac132fb1fb1284a29835541b185b0fca99b"
+  },
+  "nodeGroups": [],
+  "id": "M6b72wbnFC4vythO",
+  "tags": []
+}

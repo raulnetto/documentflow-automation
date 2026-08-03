@@ -22,7 +22,7 @@ def test_rota_raiz_retorna_servico_disponivel() -> None:
 
     assert "status" in corpo
     assert "servico" in corpo
-    assert corpo["versao"] == "0.8.0"
+    assert corpo["versao"] == "0.9.0"
 
 
 def test_processamento_automatico_retorna_sucesso(
