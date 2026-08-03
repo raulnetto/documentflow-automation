@@ -25,7 +25,7 @@ from app.services.registro_processamento import (
 app = FastAPI(
     title="Automação de Documentos",
     description="API para processamento automatizado de documentos.",
-    version="0.8.0",
+    version="0.9.0",
 )
 
 
@@ -36,7 +36,7 @@ def verificar_api() -> dict[str, str]:
     return {
         "status": "online",
         "servico": "Automação de Documentos",
-        "versao": "0.8.0",
+        "versao": "0.9.0",
     }
 
 
