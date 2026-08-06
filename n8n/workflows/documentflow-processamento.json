@@ -14,39 +14,6 @@
     },
     {
       "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 3
-          },
-          "conditions": [
-            {
-              "id": "d3f3b57c-5091-435a-98ae-737b98979d54",
-              "leftValue": "={{ $json.statusCode }}",
-              "rightValue": 200,
-              "operator": {
-                "type": "number",
-                "operation": "equals"
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.3,
-      "position": [
-        544,
-        48
-      ],
-      "id": "cf61ed6f-4893-4292-93d7-b50d055129d7",
-      "name": "If"
-    },
-    {
-      "parameters": {
         "assignments": {
           "assignments": [
             {
@@ -210,6 +177,39 @@
       ],
       "id": "f7d3ce60-f31b-4565-87c2-863e3fe18dc2",
       "name": "Chamar DocumentFlow"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d3f3b57c-5091-435a-98ae-737b98979d54",
+              "leftValue": "={{ $json.statusCode }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        544,
+        48
+      ],
+      "id": "cf61ed6f-4893-4292-93d7-b50d055129d7",
+      "name": "Validar Resposta"
     }
   ],
   "pinData": {},
@@ -219,24 +219,6 @@
         [
           {
             "node": "Configurar Processamento",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "If": {
-      "main": [
-        [
-          {
-            "node": "Resultado - Sucesso",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Resultado - Erro",
             "type": "main",
             "index": 0
           }
@@ -258,7 +240,25 @@
       "main": [
         [
           {
-            "node": "If",
+            "node": "Validar Resposta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar Resposta": {
+      "main": [
+        [
+          {
+            "node": "Resultado - Sucesso",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resultado - Erro",
             "type": "main",
             "index": 0
           }
@@ -269,9 +269,10 @@
   "active": false,
   "settings": {
     "executionOrder": "v1",
-    "binaryMode": "separate"
+    "binaryMode": "separate",
+    "availableInMCP": false
   },
-  "versionId": "06d130f8-a035-4fc5-b0c3-ecfc1b14ba92",
+  "versionId": "1c55fb0e-a011-4368-ac4e-b8b2b5416897",
   "meta": {
     "instanceId": "9e34aa49279d0a8db413b11662962ac132fb1fb1284a29835541b185b0fca99b"
   },
