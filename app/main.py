@@ -59,12 +59,6 @@ def receber_documento(
             detail=str(erro),
         ) from erro
 
-    raise HTTPException(
-        status_code=status.HTTP_400_BAD_REQUEST,
-        detail=str(erro),
-    ) from erro
-
-
 @app.post(
     "/documentos/upload",
     response_model=UploadResposta,
@@ -177,17 +171,18 @@ def processar_documento_com_ocr(
             mensagem_erro=str(erro),
         )
 
-
         raise HTTPException(
-        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-        detail=str(erro),
-    ) from erro
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(erro),
+        ) from erro
 
     except ValueError as erro:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(erro),
         ) from erro
+
+
 @app.post(
     "/documentos/{nome_arquivo}/processar-automaticamente",
     response_model=ProcessamentoAutomaticoResposta,
@@ -218,16 +213,16 @@ def processar_documento_automaticamente(
         )
 
         return ProcessamentoAutomaticoResposta(
-    status="processamento_concluido",
-    arquivo_origem=caminho_arquivo.name,
-    arquivo_texto=caminho_txt.name,
-    quantidade_paginas=paginas,
-    quantidade_caracteres=caracteres,
-    caminho_salvo=str(caminho_txt),
-    mecanismo=mecanismo,
-    id_registro=registro["id"],
-    caminho_registro=registro["caminho_registro"],
-)
+            status="processamento_concluido",
+            arquivo_origem=caminho_arquivo.name,
+            arquivo_texto=caminho_txt.name,
+            quantidade_paginas=paginas,
+            quantidade_caracteres=caracteres,
+            caminho_salvo=str(caminho_txt),
+            mecanismo=mecanismo,
+            id_registro=registro["id"],
+            caminho_registro=registro["caminho_registro"],
+        )
 
     except FileNotFoundError as erro:
         criar_registro_processamento(
@@ -243,16 +238,16 @@ def processar_documento_automaticamente(
 
     except RuntimeError as erro:
         criar_registro_processamento(
-        arquivo_origem=caminho_arquivo.name,
-        status="erro",
-        mecanismo="tesseract",
-        mensagem_erro=str(erro),
-    )
+            arquivo_origem=caminho_arquivo.name,
+            status="erro",
+            mecanismo="tesseract",
+            mensagem_erro=str(erro),
+        )
 
         raise HTTPException(
-        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-        detail=str(erro),
-    ) from erro
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(erro),
+        ) from erro
 
     except ValueError as erro:
         criar_registro_processamento(
