@@ -22,7 +22,7 @@ def test_rota_raiz_retorna_servico_disponivel() -> None:
 
     assert "status" in corpo
     assert "servico" in corpo
-    assert corpo["versao"] == "0.9.0"
+    assert corpo["versao"] == "0.10.0"
 
 
 def test_processamento_automatico_retorna_sucesso(
@@ -500,3 +500,108 @@ def test_webhook_retorna_503_e_registra_origem(
     assert registro_criado["id_fluxo"] == "workflow-erro-503"
     assert registro_criado["status"] == "erro"
     assert registro_criado["mecanismo"] == "tesseract"
+
+def test_lista_historico_processamentos(
+    monkeypatch,
+) -> None:
+    """Verifica se a API retorna o histórico de processamentos."""
+
+    historico = [
+        {
+            "id": "processamento-001",
+            "data_hora": "2026-08-10T23:30:00-03:00",
+            "arquivo_origem": "documento.pdf",
+            "origem": "n8n",
+            "id_fluxo": "workflow-001",
+            "status": "sucesso",
+            "mecanismo": "pymupdf",
+            "arquivo_saida": "documento.txt",
+            "quantidade_paginas": 2,
+            "quantidade_caracteres": 500,
+            "mensagem_erro": None,
+        }
+    ]
+
+    monkeypatch.setattr(
+        "app.main.obter_historico_processamentos",
+        lambda: historico,
+    )
+
+    resposta = client.get("/processamentos")
+
+    assert resposta.status_code == 200
+    assert resposta.json() == historico
+
+
+def test_consulta_processamento_por_id(
+    monkeypatch,
+) -> None:
+    """Verifica se a API retorna um processamento específico."""
+
+    processamento = {
+        "id": "processamento-001",
+        "data_hora": "2026-08-10T23:30:00-03:00",
+        "arquivo_origem": "documento.pdf",
+        "origem": None,
+        "id_fluxo": None,
+        "status": "sucesso",
+        "mecanismo": "pymupdf",
+        "arquivo_saida": "documento.txt",
+        "quantidade_paginas": 2,
+        "quantidade_caracteres": 500,
+        "mensagem_erro": None,
+    }
+
+    monkeypatch.setattr(
+        "app.main.obter_processamento_por_id",
+        lambda identificador: processamento,
+    )
+
+    resposta = client.get("/processamentos/processamento-001")
+
+    assert resposta.status_code == 200
+    assert resposta.json() == processamento
+
+
+def test_consulta_processamento_inexistente_retorna_404(
+    monkeypatch,
+) -> None:
+    """Verifica o retorno 404 para processamento inexistente."""
+
+    monkeypatch.setattr(
+        "app.main.obter_processamento_por_id",
+        lambda identificador: None,
+    )
+
+    resposta = client.get("/processamentos/id-que-nao-existe")
+
+    assert resposta.status_code == 404
+    assert resposta.json() == {
+        "detail": "Processamento não encontrado."
+    }
+
+def test_resumo_processamentos(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Verifica se a API retorna o resumo dos processamentos."""
+
+    resumo = {
+        "total": 3,
+        "sucessos": 2,
+        "erros": 1,
+        "por_mecanismo": {
+            "pymupdf": 1,
+            "tesseract": 1,
+        },
+    }
+
+    monkeypatch.setattr(
+        main_module,
+        "obter_resumo_historico",
+        lambda: resumo,
+    )
+
+    resposta = client.get("/processamentos/resumo")
+
+    assert resposta.status_code == 200
+    assert resposta.json() == resumo

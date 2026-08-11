@@ -3,6 +3,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
+from app.repositories.processamento_repository import inserir_processamento
 
 
 PASTA_REGISTROS = Path("registros")
@@ -56,6 +57,8 @@ def criar_registro_processamento(
         ),
         encoding="utf-8",
     )
+
+    inserir_processamento(registro)
 
     registro["caminho_registro"] = str(caminho_registro)
 

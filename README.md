@@ -4,7 +4,7 @@
 
 Pipeline de automação documental desenvolvida em Python com FastAPI.
 
-O projeto recebe documentos, valida formatos, escolhe automaticamente entre extração digital e OCR, gera arquivos de texto, registra sucessos e falhas e pode ser acionado por um workflow real do N8N.
+O projeto recebe documentos, valida formatos, escolhe automaticamente entre extração digital e OCR, gera arquivos de texto, registra sucessos e falhas, persiste o histórico em JSON e SQLite e pode ser acionado por um workflow real do N8N.
 
 ## Demonstração
 
@@ -14,7 +14,7 @@ O projeto recebe documentos, valida formatos, escolhe automaticamente entre extr
 
 ## Estado atual
 
-Versão atual: **v0.9.0**
+Versão atual: **v0.10.0**
 
 A aplicação já consegue:
 
@@ -26,15 +26,22 @@ A aplicação já consegue:
 - escolher automaticamente entre extração digital e OCR;
 - gerar arquivos TXT em `output/`;
 - registrar sucessos e falhas em JSON;
+- persistir o histórico de processamentos em SQLite;
+- manter JSON e SQLite em paralelo durante a transição;
 - identificar cada processamento com UUID;
 - registrar data, hora, mecanismo, páginas, caracteres e mensagens de erro;
 - preservar `origem` e `id_fluxo`;
+- consultar o histórico completo de processamentos;
+- consultar um processamento específico por UUID;
+- retornar estatísticas agregadas de sucessos, erros e mecanismos utilizados;
 - responder com códigos HTTP adequados;
 - disponibilizar documentação OpenAPI e Swagger;
 - receber solicitações externas por webhook;
 - ser acionada por um workflow real do N8N;
 - separar automaticamente os caminhos de sucesso e erro no N8N;
-- validar os principais comportamentos com 15 testes automatizados.
+- isolar o banco de dados real durante os testes automatizados;
+- validar os principais comportamentos com **19 testes automatizados**;
+- executar a suíte automaticamente com GitHub Actions em pushes e pull requests para `main`.
 
 ## Tecnologias
 
@@ -42,6 +49,8 @@ A aplicação já consegue:
 - FastAPI
 - Pydantic
 - Uvicorn
+- SQLite
+- `sqlite3`
 - PyMuPDF
 - pytesseract
 - Pillow
@@ -54,6 +63,7 @@ A aplicação já consegue:
 - TestClient
 - monkeypatch
 - tmp_path
+- GitHub Actions
 - N8N
 - Node.js e npm
 - Git e GitHub
@@ -76,7 +86,31 @@ PyMuPDF   Tesseract
     arquivo TXT
         │
         ▼
-  registro JSON
+criar_registro_processamento()
+   ┌────┴──────────────┐
+   ▼                   ▼
+JSON               Repository
+                       │
+                       ▼
+                     SQLite
+```
+
+Consulta do histórico:
+
+```text
+Cliente / Swagger
+      │
+      ▼
+FastAPI
+      │
+      ▼
+Service de histórico
+      │
+      ▼
+Repository
+      │
+      ▼
+SQLite
 ```
 
 Com N8N:
@@ -103,6 +137,7 @@ arquivo enviado
 → imagem usa Tesseract OCR
 → TXT é salvo em output/
 → resultado é registrado em JSON
+→ o mesmo evento é persistido no SQLite
 → API devolve status, mecanismo e referência do registro
 ```
 
@@ -154,9 +189,42 @@ O webhook trata:
 - `404` — arquivo inexistente;
 - `503` — mecanismo externo indisponível.
 
+### Histórico de processamentos
+
+```text
+GET /processamentos
+```
+
+Retorna o histórico completo, ordenado pelos registros persistidos no SQLite.
+
+```text
+GET /processamentos/{identificador}
+```
+
+Retorna um processamento específico pelo UUID. Um identificador inexistente retorna `404`.
+
+```text
+GET /processamentos/resumo
+```
+
+Retorna estatísticas agregadas do histórico.
+
+Exemplo:
+
+```json
+{
+  "total": 2,
+  "sucessos": 2,
+  "erros": 0,
+  "por_mecanismo": {
+    "pymupdf": 2
+  }
+}
+```
+
 ## Integração com N8N
 
-A v0.9 adiciona um workflow real e exportável.
+A v0.9 adicionou um workflow real e exportável, preservado na v0.10.
 
 Arquivos:
 
@@ -183,9 +251,11 @@ Documentação detalhada:
 n8n/README.md
 ```
 
-## Registros estruturados
+## Persistência e histórico
 
-Cada processamento gera um arquivo JSON em `registros/` com:
+Cada processamento continua gerando um arquivo JSON em `registros/` e passa também a ser persistido no SQLite.
+
+Campos persistidos:
 
 - `id`;
 - `data_hora`;
@@ -199,20 +269,53 @@ Cada processamento gera um arquivo JSON em `registros/` com:
 - `quantidade_caracteres`;
 - `mensagem_erro`.
 
-Os registros produzidos durante a execução são ignorados pelo Git. Apenas `registros/.gitkeep` é versionado.
+O UUID é utilizado como chave primária da tabela `processamentos`.
 
-## Testes automatizados
+O banco local fica em:
 
-A v0.9 mantém **15 testes automatizados**.
+```text
+dados/documentflow.db
+```
+
+O arquivo `.db` é ignorado pelo Git. Apenas `dados/.gitkeep` é versionado.
+
+A persistência JSON foi mantida durante a transição para preservar compatibilidade e auditoria.
+
+## Camadas de acesso ao banco
+
+A v0.10 separa responsabilidades entre as camadas:
+
+```text
+rota FastAPI
+→ service
+→ repository
+→ SQLite
+```
+
+Responsabilidades:
+
+- **rota:** contrato HTTP, códigos de resposta e integração com FastAPI;
+- **service:** transforma e valida os dados de domínio;
+- **repository:** concentra `INSERT`, `SELECT` e consultas agregadas;
+- **SQLite:** persiste o histórico localmente.
+
+O repository utiliza consultas parametrizadas para inserir e buscar dados.
+
+## Testes automatizados e CI
+
+A v0.10 mantém **19 testes automatizados**.
 
 ### API
 
 - rota raiz retorna `200`;
-- versão anunciada é `0.9.0`;
+- versão anunciada é `0.10.0`;
 - processamento automático retorna `200`, `400`, `404` e `503`;
 - webhook retorna `200`, `400`, `404` e `503`;
 - webhook preserva `origem` e `id_fluxo`;
-- erros geram registros estruturados.
+- histórico completo retorna `200`;
+- consulta por UUID retorna `200`;
+- UUID inexistente retorna `404`;
+- resumo agregado retorna `200`.
 
 ### Processador automático
 
@@ -222,12 +325,13 @@ A v0.9 mantém **15 testes automatizados**.
 - arquivo inexistente gera `FileNotFoundError`;
 - extensão não suportada gera `ValueError`.
 
-### Registro
+### Registro e banco
 
 - JSON é criado corretamente;
 - UUID, status e campos principais são validados;
-- o teste usa diretório temporário;
-- arquivos reais de execução não são alterados.
+- testes usam diretórios temporários;
+- o SQLite dos testes é redirecionado para um banco temporário;
+- o banco local real não é contaminado pela suíte.
 
 Executar:
 
@@ -238,10 +342,27 @@ python -m pytest -v
 Resultado validado:
 
 ```text
-15 passed
+19 passed
 ```
 
 Existe atualmente um aviso de depreciação vindo da integração entre FastAPI, Starlette TestClient e httpx. O aviso não invalida a suíte.
+
+### GitHub Actions
+
+O repositório possui integração contínua em:
+
+```text
+.github/workflows/tests.yml
+```
+
+O workflow:
+
+- executa em pull requests para `main`;
+- executa em pushes para `main`;
+- prepara um ambiente Ubuntu limpo;
+- instala Python e as dependências de desenvolvimento;
+- executa `python -m pytest -v`;
+- expõe o resultado publicamente pelo badge no topo deste README.
 
 ## Instalação
 
@@ -289,6 +410,8 @@ Swagger:
 http://127.0.0.1:8000/docs
 ```
 
+Na primeira utilização do banco, a estrutura necessária é criada automaticamente pela aplicação.
+
 ### 3. Iniciar o N8N em outro terminal
 
 ```powershell
@@ -320,21 +443,30 @@ A pasta `input/` não é versionada.
 
 ```text
 app/
+├── database.py
 ├── exceptions.py
 ├── main.py
 ├── models.py
+├── repositories/
+│   ├── __init__.py
+│   └── processamento_repository.py
 └── services/
     ├── armazenamento.py
     ├── extrator_ocr.py
     ├── extrator_pdf.py
+    ├── historico_processamentos.py
     ├── processador.py
     ├── processador_automatico.py
     └── registro_processamento.py
 
 tests/
+├── conftest.py
 ├── test_api.py
 ├── test_processador_automatico.py
 └── test_registro_processamento.py
+
+dados/
+└── .gitkeep
 
 n8n/
 ├── README.md
@@ -362,6 +494,7 @@ Não são versionados:
 - documentos de entrada;
 - arquivos TXT gerados;
 - registros JSON produzidos;
+- banco SQLite local;
 - documentos pessoais;
 - senhas, tokens ou credenciais.
 
@@ -369,11 +502,12 @@ O endereço `127.0.0.1` representa apenas o próprio computador e não expõe en
 
 ## Limitações atuais
 
-- o workflow usa gatilho manual;
+- o workflow do N8N ainda usa gatilho manual;
 - o documento precisa existir previamente em `input/`;
 - API e N8N precisam estar rodando localmente;
 - não há upload binário direto pelo N8N;
-- não há banco de dados;
+- o banco atual é SQLite local;
+- ainda não há paginação ou filtros avançados no histórico;
 - não há autenticação;
 - não há idempotência ou política de repetição;
 - não há Docker;
@@ -381,17 +515,12 @@ O endereço `127.0.0.1` representa apenas o próprio computador e não expõe en
 - não há dashboard;
 - o caminho do Tesseract ainda depende da configuração local.
 
-## Próximo marco sugerido
+## Próximos passos
 
-### v0.10 — Persistência relacional e consulta de histórico
-
-Objetivos:
-
-- criar uma base SQLite;
-- modelar a entidade `processamento`;
-- persistir sucessos e falhas no banco;
-- manter compatibilidade temporária com os registros JSON;
-- criar endpoints de consulta;
-- filtrar por status, mecanismo, origem e `id_fluxo`;
-- gerar consultas agregadas para apresentação acadêmica;
+- externalizar configurações com variáveis de ambiente;
+- adicionar autenticação por API key;
+- avaliar filtros e paginação do histórico;
+- containerizar a aplicação com Docker;
+- preparar ambiente de deploy;
+- evoluir observabilidade e monitoramento;
 - preparar a base para relatórios e dashboard.
