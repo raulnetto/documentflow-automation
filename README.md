@@ -1,5 +1,7 @@
 # DocumentFlow Automation
 
+[![Testes automatizados](https://github.com/raulnetto/documentflow-automation/actions/workflows/tests.yml/badge.svg)](https://github.com/raulnetto/documentflow-automation/actions/workflows/tests.yml)
+
 Pipeline de automação documental desenvolvida em Python com FastAPI.
 
 O projeto recebe documentos, valida formatos, escolhe automaticamente entre extração digital e OCR, gera arquivos de texto, registra sucessos e falhas e pode ser acionado por um workflow real do N8N.
