@@ -11,6 +11,8 @@ from app.models import (
     UploadResposta,
     WebhookProcessamentoEntrada,
     WebhookProcessamentoResposta,
+    ProcessamentoHistoricoResposta,
+    ProcessamentoResumoResposta,
 )
 from app.services.armazenamento import salvar_upload
 from app.services.extrator_ocr import extrair_texto_ocr
@@ -20,12 +22,18 @@ from app.services.processador_automatico import processar_automaticamente
 from app.services.registro_processamento import (
     criar_registro_processamento,
 )
+from app.services.historico_processamentos import (
+    obter_historico_processamentos,
+    obter_processamento_por_id,
+    obter_resumo_historico,
+)
+
 
 
 app = FastAPI(
     title="Automação de Documentos",
     description="API para processamento automatizado de documentos.",
-    version="0.9.0",
+    version="0.10.0",
 )
 
 
@@ -36,7 +44,7 @@ def verificar_api() -> dict[str, str]:
     return {
         "status": "online",
         "servico": "Automação de Documentos",
-        "versao": "0.9.0",
+        "versao": "0.10.0",
     }
 
 
@@ -347,3 +355,47 @@ def processar_documento_via_webhook(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(erro),
         ) from erro
+
+
+@app.get(
+    "/processamentos",
+    response_model=list[ProcessamentoHistoricoResposta],
+    status_code=status.HTTP_200_OK,
+)
+def listar_historico_processamentos(
+) -> list[ProcessamentoHistoricoResposta]:
+    """Retorna o histórico completo de processamentos."""
+
+    return obter_historico_processamentos()
+
+
+@app.get(
+    "/processamentos/resumo",
+    response_model=ProcessamentoResumoResposta,
+    status_code=status.HTTP_200_OK,
+)
+def consultar_resumo_processamentos() -> ProcessamentoResumoResposta:
+    """Retorna estatísticas agregadas dos processamentos."""
+
+    return obter_resumo_historico()
+
+
+@app.get(
+    "/processamentos/{identificador}",
+    response_model=ProcessamentoHistoricoResposta,
+    status_code=status.HTTP_200_OK,
+)
+def consultar_processamento_por_id(
+    identificador: str,
+) -> ProcessamentoHistoricoResposta:
+    """Retorna um processamento específico pelo identificador."""
+
+    processamento = obter_processamento_por_id(identificador)
+
+    if processamento is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Processamento não encontrado.",
+        )
+
+    return processamento

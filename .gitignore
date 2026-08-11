@@ -29,3 +29,7 @@ Thumbs.db
 # Registros produzidos durante o processamento
 registros/*
 !registros/.gitkeep
+
+# Banco de dados local
+dados/*
+!dados/.gitkeep

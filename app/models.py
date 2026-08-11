@@ -91,3 +91,26 @@ class WebhookProcessamentoResposta(BaseModel):
     mecanismo: str
     id_registro: str
     caminho_registro: str
+
+class ProcessamentoHistoricoResposta(BaseModel):
+    """Representa um processamento persistido no histórico."""
+
+    id: str
+    data_hora: str
+    arquivo_origem: str
+    origem: str | None
+    id_fluxo: str | None
+    status: str
+    mecanismo: str | None
+    arquivo_saida: str | None
+    quantidade_paginas: int | None
+    quantidade_caracteres: int | None
+    mensagem_erro: str | None
+
+class ProcessamentoResumoResposta(BaseModel):
+    """Representa estatísticas agregadas dos processamentos."""
+
+    total: int
+    sucessos: int
+    erros: int
+    por_mecanismo: dict[str, int]
