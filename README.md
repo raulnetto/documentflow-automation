@@ -2,9 +2,22 @@
 
 [![Testes automatizados](https://github.com/raulnetto/documentflow-automation/actions/workflows/tests.yml/badge.svg)](https://github.com/raulnetto/documentflow-automation/actions/workflows/tests.yml)
 
-Pipeline de automação documental desenvolvida em Python com FastAPI.
+Document processing and automation pipeline built with **Python and FastAPI**.
 
-O projeto recebe documentos, valida formatos, escolhe automaticamente entre extração digital e OCR, gera arquivos de texto, registra sucessos e falhas, persiste o histórico em JSON e SQLite e pode ser acionado por um workflow real do N8N.
+DocumentFlow receives files, automatically decides between native text extraction and OCR, persists processing history, exposes an HTTP API and webhook integration, and can be orchestrated through **n8n**.
+
+### Engineering highlights
+
+- automatic routing between **PyMuPDF** and **Tesseract OCR**;
+- layered architecture with **FastAPI → service → repository → SQLite**;
+- structured processing history with UUID-based traceability;
+- webhook integration for external automation;
+- reproducible n8n workflow;
+- automated tests with **pytest**;
+- continuous integration with **GitHub Actions**.
+
+**Current version:** `v0.10.0`  
+**Automated tests:** `19 passed`
 
 ## Demonstração
 
