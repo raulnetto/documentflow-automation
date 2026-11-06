@@ -4,7 +4,21 @@
 
 API FastAPI para validar e processar documentos PDF e imagens. Extrai texto de PDFs digitais com PyMuPDF, usa Tesseract OCR para imagens e PDFs digitalizados, grava saídas em texto e mantém histórico em JSON e SQL. SQLite é o backend padrão; PostgreSQL é opcional via `DATABASE_URL`.
 
-## Versão
+## Engineering highlights
+
+Document processing and automation pipeline built with **Python and FastAPI**.
+
+DocumentFlow receives files, automatically decides between native text extraction and OCR, persists processing history, exposes an HTTP API and webhook integration, and can be orchestrated through **n8n**.
+
+- automatic routing between **PyMuPDF** and **Tesseract OCR**;
+- layered architecture with **FastAPI → service → repository → SQLite by default or PostgreSQL via `DATABASE_URL`**;
+- structured processing history with UUID-based traceability;
+- webhook integration for external automation;
+- reproducible n8n workflow;
+- **19 SQLite regression tests** and a PostgreSQL integration test;
+- continuous integration with **GitHub Actions**.
+
+**Current release candidate:** `v0.11.0` (not yet published).
 
 Versão preparada: **v0.11.0**. O endpoint raiz e o metadata OpenAPI anunciam `0.11.0`.
 
@@ -64,8 +78,6 @@ python -m uvicorn app.main:app --reload
 
 Abra `http://127.0.0.1:8000/docs` para explorar a API. Alguns endpoints principais:
 
-| Método | Rota | Ação |
-| --- | --- | --- |
 | Método | Rota | Ação e respostas principais |
 | --- | --- | --- |
 | `GET` | `/` | Estado e versão da API (`200`) |

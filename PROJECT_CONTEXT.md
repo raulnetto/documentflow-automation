@@ -5,10 +5,11 @@
 - Directory: `C:\Projetos\automacao_documentos`
 - Release candidate: v0.11.0 (prepared locally; not published)
 
-## Current State (DF-014 documentation audit)
-- Branch: `main`, HEAD `eb40a1f0c7ec0ec83aa56fb1fbd839bd5716c6f6`, one commit ahead of `origin/main` at inspection.
-- Release preparation changes only `README.md`, `CHANGELOG.md`, `app/main.py`, `tests/test_api.py`, and this context file. No changes are staged; documentation audit additions are limited to README, CHANGELOG, and this context file.
-- `df011-host-report.txt` and the pre-existing untracked `automacao_documentos.code-workspace` remain local and excluded from Git.
+## Current State (DF-017 merge preparation)
+- Branch: `main`, local HEAD `92b2ae92168b9718161dcbdef1937e47995281c1`; fetched `origin/main` is `0b4e2a5dad39cc808c4cfd6472977bf244fd862d`.
+- The histories share ancestor `dd89127bd555c446762a3b3a8116bef68c0b9fb1`. Local `main` retains DF-011 and DF-015; remote `main` has one separate README commit.
+- A no-commit merge is prepared with the README conflict resolved. `README.md` and `PROJECT_CONTEXT.md` are staged; the authorized merge commit is not yet created.
+- `df011-host-report.txt` and `automacao_documentos.code-workspace` remain local, untracked, and excluded from the merge.
 - Architecture: FastAPI, service/repository layers, SQLAlchemy Core, SQLite default, PostgreSQL via `DATABASE_URL`, JSON processing records.
 - Current persistence repository: `app/repositories/processamento_repository.py`; database setup: `app/database.py`.
 - OCR executable selection uses `TESSERACT_CMD`, then `PATH`, then the legacy Windows path.
@@ -25,17 +26,17 @@
 - A previous DF-011 mission reported 19 passing tests, PostgreSQL 17 in Docker, and SQLAlchemy/Psycopg installed. Those results were not reproducible in the current executor and are not treated as current VERIFIED evidence.
 
 ## Active Slice
-- DF-014 documentation integrity audit: baseline sections compared, missing operational/API detail restored concisely, and candidate remains ready for local checkpoint review.
+- DF-018: complete the authorized local merge checkpoint, preserving the remote English portfolio highlights and v0.11.0 documentation. The merge commit is not yet created.
 
 ## Blockers
-- The default sandbox denied access to the Windows Python launcher; this release-preparation run used the authorized HOST route and completed the required checks.
-- No product or validation blocker remains for the local release-preparation checkpoint. Commit, tag, push, and publication are outside DF-013 authorization.
+- The DF-018 merge commit is authorized locally; push, tag, release, and deploy remain unauthorized.
+- No product or validation blocker was found in the documentation-only reconciliation. Push, tag, release, and deploy remain unauthorized.
 - RDS governance repository and Raul Studio are readable but outside the writable root for this session; their state was inspected read-only.
 
 ## Evidence and Next Action
-- DF-011 is in the baseline commit. Its HOST report is historical evidence and does not validate the new 0.11.0 version.
-- DF-013 SQLite, API-version, static, and HOST results are recorded in the release-preparation addendum below.
-- Next: human review of the release-preparation diff. No commit, tag, push, PR, deploy, or release was performed.
+- The remote branch was fetched read-only. Both candidate histories and the common ancestor are recorded in DF-017 below.
+- DF-013 HOST results remain historical evidence for the same v0.11.0 code; DF-017 did not change implementation or tests.
+- Next: complete the pre-commit gates and verify the local merge commit. No commit, push, tag, PR, deploy, or release has been performed.
 
 ## Finding HOST-001 (2026-11-05)
 - Symptom: HOST runner failed during parameter binding because `Split-Path` received an empty path.
@@ -112,3 +113,11 @@
 - Candidate HOST evidence remains the DF-013 report in `%TEMP%`; no full runner was repeated because this audit changed documentation only. Static `git diff --check` passed.
 - No implementation code or test assertion changed in DF-014. `README.md`, `CHANGELOG.md`, `app/main.py`, `tests/test_api.py`, and `PROJECT_CONTEXT.md` remain the only modified tracked files; the local HOST report and workspace file remain untracked and excluded.
 - Recommendation: READY FOR LOCAL CHECKPOINT. No commit, push, tag, release, or deploy was performed; local commit authorization remains pending.
+
+## DF-017 GitHub Divergence Reconciliation
+- Read-only fetch updated `origin/main` from `dd89127` to `0b4e2a5`. The remote commit is a sibling of local DF-011/DF-015 commits; common ancestor is `dd89127`.
+- The remote commit changes only `README.md`, adding English product copy and engineering highlights. The README preserves that content while correcting the stale v0.10.0 and SQLite-only statements for the v0.11.0 candidate.
+- A duplicate endpoint-table header discovered during conflict resolution was removed. No functional files changed.
+- No-commit merge parents proposed: first parent local `92b2ae92168b9718161dcbdef1937e47995281c1`, second parent remote `0b4e2a5dad39cc808c4cfd6472977bf244fd862d`.
+- The merge remains in progress for human review. Staged merge content is limited to `README.md` and this `PROJECT_CONTEXT.md` update. Diff checks pass; no HOST runner was repeated.
+- The two excluded local files are unchanged and untracked. No commit, push, tag, release, or deploy was performed.
