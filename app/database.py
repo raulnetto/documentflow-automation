@@ -1,40 +1,33 @@
-import sqlite3
+import os
 from pathlib import Path
-from sqlite3 import Connection
 
+from sqlalchemy import create_engine, text
+from sqlalchemy.engine import Connection, Engine
 
 CAMINHO_BANCO = Path("dados") / "documentflow.db"
 
+def obter_database_url() -> str:
+    configurada = os.getenv("DATABASE_URL")
+    return configurada or f"sqlite:///{CAMINHO_BANCO.as_posix()}"
+
+def criar_engine() -> Engine:
+    if not os.getenv("DATABASE_URL"):
+        CAMINHO_BANCO.parent.mkdir(parents=True, exist_ok=True)
+    return create_engine(obter_database_url(), future=True)
 
 def criar_conexao() -> Connection:
-    """Cria uma conexão com o banco SQLite do DocumentFlow."""
-
-    CAMINHO_BANCO.parent.mkdir(
-        parents=True,
-        exist_ok=True,
-    )
-
-    return sqlite3.connect(CAMINHO_BANCO)
-
+    return criar_engine().connect()
 
 def inicializar_banco() -> None:
-    """Cria a estrutura inicial do banco, caso ainda não exista."""
-
-    with criar_conexao() as conexao:
-        conexao.execute(
-            """
+    with criar_engine().begin() as conexao:
+        conexao.execute(text("""
             CREATE TABLE IF NOT EXISTS processamentos (
-                id TEXT PRIMARY KEY,
-                data_hora TEXT NOT NULL,
-                arquivo_origem TEXT NOT NULL,
-                origem TEXT,
-                id_fluxo TEXT,
-                status TEXT NOT NULL,
-                mecanismo TEXT,
-                arquivo_saida TEXT,
-                quantidade_paginas INTEGER,
-                quantidade_caracteres INTEGER,
-                mensagem_erro TEXT
+                id VARCHAR(255) PRIMARY KEY,
+                data_hora VARCHAR(255) NOT NULL,
+                arquivo_origem VARCHAR(255) NOT NULL,
+                origem VARCHAR(255), id_fluxo VARCHAR(255),
+                status VARCHAR(50) NOT NULL, mecanismo VARCHAR(100),
+                arquivo_saida VARCHAR(255), quantidade_paginas INTEGER,
+                quantidade_caracteres INTEGER, mensagem_erro TEXT
             )
-            """
-        )
+        """))

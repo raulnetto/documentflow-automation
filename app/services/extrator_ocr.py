@@ -1,4 +1,6 @@
 from pathlib import Path
+import os
+import shutil
 
 import pymupdf
 import pytesseract
@@ -8,7 +10,9 @@ from PIL import Image, UnidentifiedImageError
 PASTA_OUTPUT = Path("output")
 
 TESSERACT_EXECUTAVEL = Path(
-    r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+    os.getenv("TESSERACT_CMD")
+    or shutil.which("tesseract")
+    or r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 )
 
 EXTENSOES_IMAGEM = {

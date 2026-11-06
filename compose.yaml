@@ -1,0 +1,28 @@
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: ${DF011_POSTGRES_DB:-documentflow}
+      POSTGRES_USER: documentflow
+      POSTGRES_PASSWORD: documentflow_local
+    ports:
+      - "127.0.0.1:${DF011_PG_HOST_PORT:-55432}:5432"
+    volumes:
+      - documentflow_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U documentflow -d ${DF011_POSTGRES_DB:-documentflow}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  api:
+    build: .
+    environment:
+      DATABASE_URL: postgresql+psycopg://documentflow:documentflow_local@postgres:5432/${DF011_POSTGRES_DB:-documentflow}
+      TESSERACT_CMD: /usr/bin/tesseract
+    ports:
+      - "127.0.0.1:${DF011_API_HOST_PORT:-18000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+volumes:
+  documentflow_pgdata:
