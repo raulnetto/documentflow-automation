@@ -3,11 +3,12 @@
 ## Identity
 - Project: DocumentFlow Automation
 - Directory: `C:\Projetos\automacao_documentos`
-- Documented version: v0.10.0 (README; current runtime version not independently checked in this audit)
+- Release candidate: v0.11.0 (prepared locally; not published)
 
-## Current State (observed 2026-11-06)
-- Branch: `main`, tracking `origin/main`.
-- Dirty tree contains the DF-011 implementation, RDS project adapter, HOST reports, and a pre-existing untracked `automacao_documentos.code-workspace`; see final acceptance audit below for the proposed checkpoint boundary.
+## Current State (DF-014 documentation audit)
+- Branch: `main`, HEAD `eb40a1f0c7ec0ec83aa56fb1fbd839bd5716c6f6`, one commit ahead of `origin/main` at inspection.
+- Release preparation changes only `README.md`, `CHANGELOG.md`, `app/main.py`, `tests/test_api.py`, and this context file. No changes are staged; documentation audit additions are limited to README, CHANGELOG, and this context file.
+- `df011-host-report.txt` and the pre-existing untracked `automacao_documentos.code-workspace` remain local and excluded from Git.
 - Architecture: FastAPI, service/repository layers, SQLAlchemy Core, SQLite default, PostgreSQL via `DATABASE_URL`, JSON processing records.
 - Current persistence repository: `app/repositories/processamento_repository.py`; database setup: `app/database.py`.
 - OCR executable selection uses `TESSERACT_CMD`, then `PATH`, then the legacy Windows path.
@@ -24,16 +25,17 @@
 - A previous DF-011 mission reported 19 passing tests, PostgreSQL 17 in Docker, and SQLAlchemy/Psycopg installed. Those results were not reproducible in the current executor and are not treated as current VERIFIED evidence.
 
 ## Active Slice
-- DF-011 implementation: SQLAlchemy Core backend selection, PostgreSQL integration test, Docker Compose assets and bounded HOST runner.
+- DF-014 documentation integrity audit: baseline sections compared, missing operational/API detail restored concisely, and candidate remains ready for local checkpoint review.
 
 ## Blockers
-- HOST execution access is unavailable to this executor for Python and Docker checks.
+- The default sandbox denied access to the Windows Python launcher; this release-preparation run used the authorized HOST route and completed the required checks.
+- No product or validation blocker remains for the local release-preparation checkpoint. Commit, tag, push, and publication are outside DF-013 authorization.
 - RDS governance repository and Raul Studio are readable but outside the writable root for this session; their state was inspected read-only.
 
 ## Evidence and Next Action
-- RDS-001 project adapter files are preserved. DF-011 implementation files are present; rerun diff checks after each change.
-- Next: execute `tools/df011_host_verify.ps1` in a HOST-capable session with an isolated PostgreSQL URL or validate Compose-provided PostgreSQL.
-- No commit or push performed.
+- DF-011 is in the baseline commit. Its HOST report is historical evidence and does not validate the new 0.11.0 version.
+- DF-013 SQLite, API-version, static, and HOST results are recorded in the release-preparation addendum below.
+- Next: human review of the release-preparation diff. No commit, tag, push, PR, deploy, or release was performed.
 
 ## Finding HOST-001 (2026-11-05)
 - Symptom: HOST runner failed during parameter binding because `Split-Path` received an empty path.
@@ -92,3 +94,21 @@
 - HOST acceptance passed end-to-end. The runner report includes separate build stdout/stderr, actual exit code, unique Compose project/database, PostgreSQL integration, HTTP write/read recovery, and successful scoped cleanup.
 - No commit or push was performed. `automacao_documentos.code-workspace` remains excluded as pre-existing untracked work.
 - Checkpoint recommendation: READY FOR CHECKPOINT. Proposed files: `.dockerignore`, `AGENTS.md`, `CHANGELOG.md`, `Dockerfile`, `PROJECT_CONTEXT.md`, `README.md`, `app/database.py`, `app/repositories/processamento_repository.py`, `app/services/extrator_ocr.py`, `compose.yaml`, `requirements.txt`, `tests/conftest.py`, `tests/test_postgres_integration.py`, `tools/df011_host_verify.ps1`, and `df011-host-report.txt`.
+
+## DF-013 Release Preparation
+- Version is set to `0.11.0` in FastAPI metadata, root response, and its API test. `0.10.0` remains only as documented history.
+- README now owns product, clone setup, runtime, test, privacy, and persistence guidance. CHANGELOG contains concise version entries; `v0.11.0` is explicitly marked prepared and unpublished.
+- Compose credentials are identified as development-only. Documentation states that PostgreSQL is persisted by the named volume while API container files in `input/`, `output/`, and `registros/` are ephemeral when the API container is recreated.
+- Validation on this candidate: SQLite regression `19 passed, 1 warning`; API root and OpenAPI both reported `0.11.0`; PowerShell runner parse passed; `git diff --check` passed; the five-file allowlist matched and the index was empty.
+- Full HOST runner passed with Python 3.14.6, Docker Engine 29.9.2, Docker build `--pull --no-cache` exit 0, PostgreSQL `1 passed, 1 warning`, healthy Compose services, HTTP root `200` with version `0.11.0`, expected webhook `404`, successful record recovery through history and UUID GET, and isolated cleanup.
+- Current HOST evidence is in `%TEMP%\df013-host-report-808c5b2cd004453fa59584cba5266aed.txt`; the DF-011 report remains untouched and outside Git.
+- Current changed-file boundary: `README.md`, `CHANGELOG.md`, `app/main.py`, `tests/test_api.py`, and `PROJECT_CONTEXT.md`. `df011-host-report.txt` and `automacao_documentos.code-workspace` remain untracked and excluded.
+- Recommendation: READY FOR RELEASE CHECKPOINT. No commit, tag, push, PR, deploy, or release was performed. Await human approval for the local preparation commit; publishing v0.11.0 remains a separate authorized mission.
+
+## DF-014 Documentation Integrity Audit
+- Compared both 539-line baseline documents from `HEAD` with the DF-013 candidates; baseline README and CHANGELOG were identical. The README now retains product, installation, local/Compose operation, technical architecture and records, HTTP routes/statuses, webhook and summary examples, test coverage, N8N link, privacy, and known persistence/feature limitations without duplicating the detailed N8N guide.
+- CHANGELOG is a concise release history with `v0.11.0` marked prepared/unpublished, plus documented `v0.10.0` and `v0.9` entries. Removed duplicate README material rather than deleting distinct release history; baseline had no separate per-version changelog.
+- `requirements-dev.txt` exists and includes `-r requirements.txt` plus pinned pytest. A fresh temporary Python 3.14 venv installed it successfully and `pip check` reported no broken requirements; the temporary venv was removed.
+- Candidate HOST evidence remains the DF-013 report in `%TEMP%`; no full runner was repeated because this audit changed documentation only. Static `git diff --check` passed.
+- No implementation code or test assertion changed in DF-014. `README.md`, `CHANGELOG.md`, `app/main.py`, `tests/test_api.py`, and `PROJECT_CONTEXT.md` remain the only modified tracked files; the local HOST report and workspace file remain untracked and excluded.
+- Recommendation: READY FOR LOCAL CHECKPOINT. No commit, push, tag, release, or deploy was performed; local commit authorization remains pending.

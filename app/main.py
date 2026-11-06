@@ -33,7 +33,7 @@ from app.services.historico_processamentos import (
 app = FastAPI(
     title="Automação de Documentos",
     description="API para processamento automatizado de documentos.",
-    version="0.10.0",
+    version="0.11.0",
 )
 
 
@@ -44,7 +44,7 @@ def verificar_api() -> dict[str, str]:
     return {
         "status": "online",
         "servico": "Automação de Documentos",
-        "versao": "0.10.0",
+        "versao": "0.11.0",
     }
 
 
