@@ -1,0 +1,72 @@
+{
+  "api_root": {
+    "http_status": 200,
+    "body": {
+      "status": "online",
+      "servico": "Automação de Documentos",
+      "versao": "0.11.0"
+    }
+  },
+  "upload": {
+    "http_status": 201,
+    "body": {
+      "status": "armazenado",
+      "arquivo": "documentflow_df021_b34a99c8.pdf",
+      "tipo_conteudo": "application/pdf",
+      "tamanho_bytes": 740,
+      "caminho_salvo": "input/documentflow_df021_b34a99c8.pdf",
+      "proxima_etapa": "extracao_ocr"
+    }
+  },
+  "automatic_processing": {
+    "http_status": 200,
+    "body": {
+      "status": "processamento_concluido",
+      "arquivo_origem": "documentflow_df021_b34a99c8.pdf",
+      "arquivo_texto": "documentflow_df021_b34a99c8_extraido.txt",
+      "quantidade_paginas": 1,
+      "quantidade_caracteres": 119,
+      "caminho_salvo": "output/documentflow_df021_b34a99c8_extraido.txt",
+      "mecanismo": "pymupdf",
+      "id_registro": "205623ab-7b7a-4219-9e01-1bb1401e0f48",
+      "caminho_registro": "registros/205623ab-7b7a-4219-9e01-1bb1401e0f48.json"
+    }
+  },
+  "record_by_uuid": {
+    "http_status": 200,
+    "body": {
+      "id": "205623ab-7b7a-4219-9e01-1bb1401e0f48",
+      "data_hora": "2026-11-06T05:24:37.014486+00:00",
+      "arquivo_origem": "documentflow_df021_b34a99c8.pdf",
+      "origem": null,
+      "id_fluxo": null,
+      "status": "sucesso",
+      "mecanismo": "pymupdf",
+      "arquivo_saida": "documentflow_df021_b34a99c8_extraido.txt",
+      "quantidade_paginas": 1,
+      "quantidade_caracteres": 119,
+      "mensagem_erro": null
+    }
+  },
+  "history": {
+    "http_status": 200,
+    "contains_demo_record": true,
+    "record_count": 1
+  },
+  "summary": {
+    "http_status": 200,
+    "body": {
+      "total": 1,
+      "sucessos": 1,
+      "erros": 0,
+      "por_mecanismo": {
+        "pymupdf": 1
+      }
+    }
+  },
+  "expected_text": [
+    "DOCUMENTFLOW DF021 PORTFOLIO DEMO",
+    "Synthetic digital PDF extraction proves the PyMuPDF route.",
+    "Reference: DF021-SAFE-2026"
+  ]
+}

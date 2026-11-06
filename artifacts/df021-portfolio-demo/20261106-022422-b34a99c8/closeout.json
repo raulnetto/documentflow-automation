@@ -1,0 +1,42 @@
+{
+  "closeout_date": "2026-11-06",
+  "run_id": "b34a99c8",
+  "source_report": "run-report.json",
+  "source_http_evidence": "http-evidence.json",
+  "evidence_review": {
+    "run_report_status": "passed",
+    "upload_http": 201,
+    "processing_http": 200,
+    "record_http": 200,
+    "history_http": 200,
+    "summary_http": 200,
+    "mechanism": "pymupdf",
+    "page_count": 1,
+    "character_count": 119,
+    "postgresql_status": "sucesso",
+    "pdf_bytes": 740,
+    "pdf_sha256": "3cf625be5560c9bb75ae242e41213bff2d785cd53d004681948da2e1eabc7235"
+  },
+  "visual": {
+    "path": "docs/assets/df021-portfolio-flow.svg",
+    "kind": "evidence diagram",
+    "screenshot": false
+  },
+  "validation": {
+    "demo_rerun": false,
+    "tests_rerun": false,
+    "reason": "Existing recorded end-to-end evidence covers the requested flow; a rerun would create another temporary stack."
+  },
+  "retained_compose_project": "df021-demo-19040-b34a99c8",
+  "cleanup": {
+    "status": "blocked_unverified",
+    "reason": "Project-scoped Docker CLI was inaccessible in this restricted executor; no fallback or privilege escalation attempted."
+  },
+  "git": {
+    "branch": "main",
+    "head": "bd33dbd8969f4716c857d35b94d0c71bc901e68b",
+    "origin_main": "bd33dbd8969f4716c857d35b94d0c71bc901e68b",
+    "commit_created": false,
+    "push_performed": false
+  }
+}

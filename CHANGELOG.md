@@ -2,7 +2,7 @@
 
 Este arquivo registra mudanças relevantes por versão. Detalhes de instalação e uso ficam no [README](README.md).
 
-## v0.11.0 — preparação para publicação
+## v0.11.0 — publicada
 
 ### Adicionado
 - Backend PostgreSQL opcional via `DATABASE_URL`, usando SQLAlchemy Core e Psycopg; SQLite continua sendo o padrão.
@@ -14,7 +14,7 @@ Este arquivo registra mudanças relevantes por versão. Detalhes de instalação
 - Persistência dos registros JSON e contratos HTTP existentes.
 - Compatibilidade SQLite e seleção de PostgreSQL sem migração automática de dados históricos.
 
-Esta versão está preparada, mas ainda não publicada. A validação de release deve executar novamente os testes e o runner HOST na versão candidata.
+Status de publicação informado pelo responsável do projeto; não revalidado contra o serviço de hospedagem nesta sessão.
 
 ## v0.10.0
 - Histórico de processamento persistido em SQLite, mantendo registros JSON.

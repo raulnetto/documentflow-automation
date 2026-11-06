@@ -3,13 +3,13 @@
 ## Identity
 - Project: DocumentFlow Automation
 - Directory: `C:\Projetos\automacao_documentos`
-- Release candidate: v0.11.0 (prepared locally; not published)
+- Release: v0.11.0 (publication reported by owner; not independently checked in this session)
 
-## Current State (DF-017 merge preparation)
-- Branch: `main`, local HEAD `92b2ae92168b9718161dcbdef1937e47995281c1`; fetched `origin/main` is `0b4e2a5dad39cc808c4cfd6472977bf244fd862d`.
-- The histories share ancestor `dd89127bd555c446762a3b3a8116bef68c0b9fb1`. Local `main` retains DF-011 and DF-015; remote `main` has one separate README commit.
-- A no-commit merge is prepared with the README conflict resolved. `README.md` and `PROJECT_CONTEXT.md` are staged; the authorized merge commit is not yet created.
-- `df011-host-report.txt` and `automacao_documentos.code-workspace` remain local, untracked, and excluded from the merge.
+## Current State (DF-021 portfolio closeout, 2026-11-06)
+- Branch: `main`; observed HEAD and `origin/main`: `bd33dbd8969f4716c857d35b94d0c71bc901e68b`; local tag `v0.11.0` points at HEAD.
+- Git status at closeout start: pre-existing modified `AGENTS.md`; untracked `artifacts/`, `automacao_documentos.code-workspace`, `df011-host-report.txt`, and `tools/df021_portfolio_demo.py`. Preserve these; no commit or push was made.
+- DF-021 real run evidence exists under `artifacts/df021-portfolio-demo/20261106-022422-b34a99c8`; its report records successful build/up, HTTP upload/process/retrieval/history/summary, PyMuPDF extraction, and a PostgreSQL row.
+- That run intentionally retained Compose project `df021-demo-19040-b34a99c8` for visual capture. Cleanup could not be checked from this restricted executor because the project-scoped Docker CLI path was inaccessible; do not assume the stack has stopped.
 - Architecture: FastAPI, service/repository layers, SQLAlchemy Core, SQLite default, PostgreSQL via `DATABASE_URL`, JSON processing records.
 - Current persistence repository: `app/repositories/processamento_repository.py`; database setup: `app/database.py`.
 - OCR executable selection uses `TESSERACT_CMD`, then `PATH`, then the legacy Windows path.
@@ -26,17 +26,16 @@
 - A previous DF-011 mission reported 19 passing tests, PostgreSQL 17 in Docker, and SQLAlchemy/Psycopg installed. Those results were not reproducible in the current executor and are not treated as current VERIFIED evidence.
 
 ## Active Slice
-- DF-018: complete the authorized local merge checkpoint, preserving the remote English portfolio highlights and v0.11.0 documentation. The merge commit is not yet created.
+- DF-021: portfolio evidence and reproduction notes prepared from the recorded synthetic run. Visual output is an evidence diagram, not a browser screenshot. Operator must inspect and clean the exact retained Compose project if it still exists.
 
 ## Blockers
-- The DF-018 merge commit is authorized locally; push, tag, release, and deploy remain unauthorized.
-- No product or validation blocker was found in the documentation-only reconciliation. Push, tag, release, and deploy remain unauthorized.
-- RDS governance repository and Raul Studio are readable but outside the writable root for this session; their state was inspected read-only.
+- Cleanup status for `df021-demo-19040-b34a99c8` is unverified; the executor could not access Docker CLI. No alternate path, privilege expansion, or GUI was used.
+- Owner reports v0.11.0 published; external publication was not independently verified. No release or deployment action was performed.
 
 ## Evidence and Next Action
-- The remote branch was fetched read-only. Both candidate histories and the common ancestor are recorded in DF-017 below.
-- DF-013 HOST results remain historical evidence for the same v0.11.0 code; DF-017 did not change implementation or tests.
-- Next: complete the pre-commit gates and verify the local merge commit. No commit, push, tag, PR, deploy, or release has been performed.
+- DF-021 run report: `artifacts/df021-portfolio-demo/20261106-022422-b34a99c8/run-report.json`; HTTP details: `http-evidence.json`; extracted text and synthetic PDF are adjacent.
+- PDF SHA-256: `3cf625be5560c9bb75ae242e41213bff2d785cd53d004681948da2e1eabc7235`. The report marks the run `passed`; this is prior execution evidence, not a rerun in this session.
+- Next: inspect the exact Compose project with the project-scoped command, stop/remove it only if it still exists, then review the documentation diff and proposed commit. No commit, push, tag, PR, deploy, or release was performed.
 
 ## Finding HOST-001 (2026-11-05)
 - Symptom: HOST runner failed during parameter binding because `Split-Path` received an empty path.

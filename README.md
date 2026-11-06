@@ -18,9 +18,15 @@ DocumentFlow receives files, automatically decides between native text extractio
 - **19 SQLite regression tests** and a PostgreSQL integration test;
 - continuous integration with **GitHub Actions**.
 
-**Current release candidate:** `v0.11.0` (not yet published).
+**Current release:** `v0.11.0` (published; status supplied by the project owner and not independently checked in this session).
 
-Versão preparada: **v0.11.0**. O endpoint raiz e o metadata OpenAPI anunciam `0.11.0`.
+O endpoint raiz e o metadata OpenAPI anunciam `0.11.0`.
+
+## Demonstração de portfólio DF-021
+
+O fluxo reproduz upload, extração de PDF digital, histórico HTTP e persistência PostgreSQL usando um documento sintético. A execução real registrada, instruções de reprodução e limites estão em [DF-021 portfolio demo](docs/df021-portfolio-demo.md).
+
+![Diagrama de evidências da execução DF-021; não é uma captura de tela](docs/assets/df021-portfolio-flow.svg)
 
 ## Funcionalidades
 

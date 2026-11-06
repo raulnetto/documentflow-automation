@@ -1,0 +1,26 @@
+[
+  {
+    "label": "build",
+    "exit_code": 0,
+    "stdout": "#1 [internal] load local bake definitions\n#1 reading from stdin 565B done\n#1 DONE 0.0s\n\n#2 [internal] load build definition from Dockerfile\n#2 transferring dockerfile: 543B done\n#2 DONE 0.0s\n\n#3 [internal] load metadata for docker.io/library/python:3.14-slim\n#3 ...\n\n#4 [auth] library/python:pull token for registry-1.docker.io\n#4 DONE 0.0s\n\n#3 [internal] load metadata for docker.io/library/python:3.14-slim\n#3 DONE 1.0s\n\n#5 [internal] load .dockerignore\n#5 transferring context: 135B done\n#5 DONE 0.0s\n\n#6 [internal] load build context\n#6 transferring context: 2.15kB 0.0s done\n#6 DONE 0.0s\n\n#7 [ 1/10] FROM docker.io/library/python:3.14-slim@sha256:af8a5aa14780025dbfbcfbc81bd8a91ebd87711dd5b0f48ed71090949dd7cb1d\n#7 resolve docker.io/library/python:3.14-slim@sha256:af8a5aa14780025dbfbcfbc81bd8a91ebd87711dd5b0f48ed71090949dd7cb1d 0.0s done\n#7 DONE 0.0s\n\n#8 [ 9/10] COPY registros ./registros\n#8 CACHED\n\n#9 [ 7/10] COPY input ./input\n#9 CACHED\n\n#10 [ 3/10] WORKDIR /app\n#10 CACHED\n\n#11 [ 6/10] COPY app ./app\n#11 CACHED\n\n#12 [ 8/10] COPY output ./output\n#12 CACHED\n\n#13 [ 2/10] RUN apt-get update && apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-por && rm -rf /var/lib/apt/lists/*\n#13 CACHED\n\n#14 [ 5/10] RUN pip install --no-cache-dir -r requirements.txt\n#14 CACHED\n\n#15 [ 4/10] COPY requirements.txt .\n#15 CACHED\n\n#16 [10/10] COPY dados ./dados\n#16 CACHED\n\n#17 exporting to image\n#17 exporting layers done\n#17 exporting manifest sha256:163035b301905fc81493febcd24a3f5910c96ecd1f90cb3283939b922768187c 0.0s done\n#17 exporting config sha256:54b012b82b6ea506464f8f7605868f83062342424f1098c75df1938be012d6ee 0.0s done\n#17 exporting attestation manifest sha256:ad2f0c20fc08189f117c7b05e666b7c18b7b263dc35c2780867604198a55ed40 0.0s done\n#17 exporting manifest list sha256:252e86433ab7be298b84e06d70ffa172452221f143b4018315b5709c2f394c00 0.0s done\n#17 naming to docker.io/library/df021-demo-19040-b34a99c8-api:latest done\n#17 unpacking to docker.io/library/df021-demo-19040-b34a99c8-api:latest\n#17 unpacking to docker.io/library/df021-demo-19040-b34a99c8-api:latest 2.3s done\n#17 DONE 2.4s\n\n#18 resolving provenance for metadata file\n#18 DONE 0.0s\n",
+    "stderr": " Image df021-demo-19040-b34a99c8-api Building \n Image df021-demo-19040-b34a99c8-api Built \n"
+  },
+  {
+    "label": "compose-up",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": " Network df021-demo-19040-b34a99c8_default Creating \n Volume df021-demo-19040-b34a99c8_documentflow_pgdata Creating \n Network df021-demo-19040-b34a99c8_default Creating \n Volume df021-demo-19040-b34a99c8_documentflow_pgdata Creating \n Volume df021-demo-19040-b34a99c8_documentflow_pgdata Created \n Volume df021-demo-19040-b34a99c8_documentflow_pgdata Created \n Network df021-demo-19040-b34a99c8_default Created \n Network df021-demo-19040-b34a99c8_default Created \n Container df021-demo-19040-b34a99c8-postgres-1 Creating \n Container df021-demo-19040-b34a99c8-postgres-1 Created \n Container df021-demo-19040-b34a99c8-api-1 Creating \n Container df021-demo-19040-b34a99c8-api-1 Created \n Container df021-demo-19040-b34a99c8-postgres-1 Starting \n Container df021-demo-19040-b34a99c8-postgres-1 Started \n Container df021-demo-19040-b34a99c8-postgres-1 Waiting \n Container df021-demo-19040-b34a99c8-postgres-1 Healthy \n Container df021-demo-19040-b34a99c8-api-1 Starting \n Container df021-demo-19040-b34a99c8-api-1 Started \n Container df021-demo-19040-b34a99c8-api-1 Waiting \n Container df021-demo-19040-b34a99c8-postgres-1 Waiting \n Container df021-demo-19040-b34a99c8-api-1 Healthy \n Container df021-demo-19040-b34a99c8-postgres-1 Healthy \n"
+  },
+  {
+    "label": "copy-extracted-text",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": " df021-demo-19040-b34a99c8-api-1 Copying df021-demo-19040-b34a99c8-api-1:/app/output/documentflow_df021_b34a99c8_extraido.txt to C:\\Projetos\\automacao_documentos\\artifacts\\df021-portfolio-demo\\20261106-022422-b34a99c8\\documentflow_df021_b34a99c8_extraido.txt\n df021-demo-19040-b34a99c8-api-1 Copied df021-demo-19040-b34a99c8-api-1:/app/output/documentflow_df021_b34a99c8_extraido.txt to C:\\Projetos\\automacao_documentos\\artifacts\\df021-portfolio-demo\\20261106-022422-b34a99c8\\documentflow_df021_b34a99c8_extraido.txt\n"
+  },
+  {
+    "label": "postgresql-row-check",
+    "exit_code": 0,
+    "stdout": "205623ab-7b7a-4219-9e01-1bb1401e0f48|sucesso|pymupdf\n",
+    "stderr": ""
+  }
+]

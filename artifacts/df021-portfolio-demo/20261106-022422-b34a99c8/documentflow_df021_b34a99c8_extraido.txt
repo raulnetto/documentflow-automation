@@ -1,0 +1,4 @@
+--- Página 1 ---
+DOCUMENTFLOW DF021 PORTFOLIO DEMO
+Synthetic digital PDF extraction proves the PyMuPDF route.
+Reference: DF021-SAFE-2026

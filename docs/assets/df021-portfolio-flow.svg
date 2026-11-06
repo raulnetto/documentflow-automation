@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="650" viewBox="0 0 1200 650" role="img" aria-labelledby="title desc">
+  <title id="title">DF-021 recorded portfolio run</title>
+  <desc id="desc">Evidence diagram, not a screenshot. Shows the recorded synthetic PDF upload, PyMuPDF extraction, HTTP checks, and PostgreSQL row.</desc>
+  <rect width="1200" height="650" fill="#f4f7fb"/>
+  <text x="60" y="62" font-family="Segoe UI,Arial,sans-serif" font-size="30" font-weight="700" fill="#14233b">DocumentFlow · DF-021</text>
+  <text x="60" y="96" font-family="Segoe UI,Arial,sans-serif" font-size="17" fill="#52627a">Recorded run b34a99c8 · 2026-11-06 · evidence diagram, not a screenshot</text>
+  <g font-family="Segoe UI,Arial,sans-serif">
+    <rect x="60" y="155" width="230" height="138" rx="14" fill="#fff" stroke="#8aa2c2" stroke-width="2"/>
+    <text x="82" y="192" font-size="20" font-weight="700" fill="#14233b">Synthetic PDF</text>
+    <text x="82" y="224" font-size="15" fill="#52627a">1 page · 740 bytes</text>
+    <text x="82" y="252" font-size="13" fill="#52627a">SHA-256 verified</text>
+    <text x="82" y="275" font-size="12" fill="#52627a">DF021-SAFE-2026</text>
+    <path d="M300 224h55" stroke="#46698f" stroke-width="3" marker-end="url(#arrow)"/>
+    <rect x="365" y="155" width="230" height="138" rx="14" fill="#e8f2ff" stroke="#5a85b7" stroke-width="2"/>
+    <text x="387" y="192" font-size="20" font-weight="700" fill="#14233b">FastAPI upload</text>
+    <text x="387" y="224" font-size="15" fill="#304c6d">POST · HTTP 201</text>
+    <text x="387" y="252" font-size="13" fill="#52627a">Content accepted</text>
+    <path d="M605 224h55" stroke="#46698f" stroke-width="3" marker-end="url(#arrow)"/>
+    <rect x="670" y="155" width="230" height="138" rx="14" fill="#e9f7ef" stroke="#63a47d" stroke-width="2"/>
+    <text x="692" y="192" font-size="20" font-weight="700" fill="#14233b">PyMuPDF</text>
+    <text x="692" y="224" font-size="15" fill="#315a43">1 page · 119 chars</text>
+    <text x="692" y="252" font-size="13" fill="#52627a">Expected text matched</text>
+    <path d="M910 224h55" stroke="#46698f" stroke-width="3" marker-end="url(#arrow)"/>
+    <rect x="975" y="155" width="165" height="138" rx="14" fill="#fff" stroke="#8aa2c2" stroke-width="2"/>
+    <text x="995" y="192" font-size="18" font-weight="700" fill="#14233b">Processing</text>
+    <text x="995" y="224" font-size="15" fill="#304c6d">POST · 200</text>
+    <text x="995" y="252" font-size="13" fill="#52627a">Run passed</text>
+    <rect x="150" y="365" width="410" height="175" rx="14" fill="#fff" stroke="#8aa2c2" stroke-width="2"/>
+    <text x="178" y="405" font-size="21" font-weight="700" fill="#14233b">Traceable API evidence</text>
+    <text x="178" y="440" font-size="15" fill="#52627a">UUID retrieval · HTTP 200</text>
+    <text x="178" y="470" font-size="15" fill="#52627a">History · HTTP 200 · 1 record</text>
+    <text x="178" y="500" font-size="15" fill="#52627a">Summary · 1 success · 0 errors</text>
+    <path d="M782 300v44H560" fill="none" stroke="#46698f" stroke-width="3" marker-end="url(#arrow)"/>
+    <rect x="640" y="365" width="410" height="175" rx="14" fill="#fff" stroke="#5a85b7" stroke-width="2"/>
+    <text x="668" y="405" font-size="21" font-weight="700" fill="#14233b">PostgreSQL persistence</text>
+    <text x="668" y="440" font-size="15" fill="#52627a">Row verified from the run</text>
+    <text x="668" y="470" font-size="14" fill="#304c6d">205623ab-7b7a-4219-9e01-1bb1401e0f48</text>
+    <text x="668" y="500" font-size="15" fill="#52627a">sucesso · pymupdf</text>
+    <text x="60" y="604" font-size="13" fill="#6b7789">Source: artifacts/df021-portfolio-demo/20261106-022422-b34a99c8/{run-report.json,http-evidence.json,postgresql-row.txt}</text>
+  </g>
+  <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#46698f"/></marker></defs>
+</svg>

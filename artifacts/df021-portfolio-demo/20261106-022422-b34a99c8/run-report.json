@@ -1,0 +1,51 @@
+{
+  "run_id": "b34a99c8",
+  "compose_project": "df021-demo-19040-b34a99c8",
+  "database": "df021demo_b34a99c8",
+  "api_url": "http://127.0.0.1:59355",
+  "ports": {
+    "api": 59355,
+    "postgres": 59356
+  },
+  "artifacts": {
+    "pdf": "C:\\Projetos\\automacao_documentos\\artifacts\\df021-portfolio-demo\\20261106-022422-b34a99c8\\documentflow_df021_b34a99c8.pdf",
+    "http_evidence": "C:\\Projetos\\automacao_documentos\\artifacts\\df021-portfolio-demo\\20261106-022422-b34a99c8\\http-evidence.json",
+    "pdf_sha256": "3cf625be5560c9bb75ae242e41213bff2d785cd53d004681948da2e1eabc7235"
+  },
+  "status": "passed",
+  "commands": [
+    {
+      "label": "build",
+      "exit_code": 0
+    },
+    {
+      "label": "compose-up",
+      "exit_code": 0
+    },
+    {
+      "label": "copy-extracted-text",
+      "exit_code": 0
+    },
+    {
+      "label": "postgresql-row-check",
+      "exit_code": 0
+    }
+  ],
+  "release": "v0.11.0",
+  "pdf": {
+    "filename": "documentflow_df021_b34a99c8.pdf",
+    "sha256": "3cf625be5560c9bb75ae242e41213bff2d785cd53d004681948da2e1eabc7235",
+    "bytes": 740
+  },
+  "upload_http": 201,
+  "processing_http": 200,
+  "processing_id": "205623ab-7b7a-4219-9e01-1bb1401e0f48",
+  "mechanism": "pymupdf",
+  "page_count": 1,
+  "extracted_text": "documentflow_df021_b34a99c8_extraido.txt",
+  "text_matches_expected": true,
+  "postgresql_row": "205623ab-7b7a-4219-9e01-1bb1401e0f48|sucesso|pymupdf",
+  "http_evidence": "http-evidence.json",
+  "kept_stack_for_capture": true,
+  "cleanup": "deferred-for-visual-capture"
+}
