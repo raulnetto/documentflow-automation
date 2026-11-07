@@ -12,13 +12,20 @@ From the repository root, use the project's existing Python environment and Dock
 .\.venv\Scripts\python.exe tools\df021_portfolio_demo.py
 ```
 
-The runner generates a synthetic one-page PDF, uses a unique Compose project and database, waits for services, performs HTTP checks, verifies the database row, saves the extracted TXT and a run report, and normally removes only that run's Compose resources. To deliberately retain a run for a separate operator-led visual capture, pass `--keep-stack`; then inspect and remove only the exact reported project after capture. The previous run used this option and its cleanup is still unverified. Do not use a generic Compose cleanup command.
+The runner generates a synthetic one-page PDF, uses a unique Compose project and database, waits for services, performs HTTP checks, verifies the database row, saves the extracted TXT and a run report, and normally removes only that run's Compose resources. Its normal cleanup uses `down --rmi local --volumes --remove-orphans` for its unique project, so it removes that run's named volume too. To deliberately retain a run for a separate operator-led visual capture, pass `--keep-stack`; then inspect the exact reported project after capture. For manual cleanup, preserve volumes by default and remove only the exact project resources:
+
+```powershell
+docker compose --progress=plain -p <exact-project-name> -f compose.yaml ps -a
+docker compose --progress=plain -p <exact-project-name> -f compose.yaml down --rmi local --remove-orphans
+```
+
+Do not use a generic Compose cleanup command. Add `--volumes` only when removal of that project's database volume is explicitly intended and its data is no longer needed.
 
 Provide an existing empty artifact directory with `--artifact-dir <path>` when a different output location is required. Review local artifact handling before sharing; reports contain local paths, ports, and a processing UUID.
 
 ## Recorded result
 
-The evidence below is from run `b34a99c8` on 2026-11-06, not a rerun in this closeout. The recorded report is `passed`: Compose build and startup returned exit code 0; API root returned HTTP 200 and reported 0.11.0; synthetic PDF upload returned 201; automatic processing returned 200; UUID retrieval, history, and summary returned 200. The result used PyMuPDF for one page and 119 characters, and the expected text matched. PostgreSQL contained the corresponding row with status `sucesso` and mechanism `pymupdf`.
+The evidence below is from run `b34a99c8` on 2026-11-06, not a rerun in this closeout. The recorded report is `passed`: Compose build and startup returned exit code 0; API root returned HTTP 200 and reported 0.11.0; synthetic PDF upload returned 201; automatic processing returned 200; UUID retrieval, history, and summary returned 200. The result used PyMuPDF for one page and 119 characters, and the expected text matched. PostgreSQL contained the corresponding row with status `sucesso` and mechanism `pymupdf`. This is historical demonstration evidence; it does not establish current service state.
 
 The published-release status is supplied by the project owner. This session verified the local `v0.11.0` tag and API response but did not independently query a hosting service.
 
@@ -38,18 +45,20 @@ The linked SVG is a diagram derived from these saved results. It is not a browse
 
 ## Limits
 
-This proves a happy-path digital PDF through the recorded local Compose run. It does not prove OCR on scanned documents or images, authentication, production hardening, external release availability, or a current rerun. The demo data is synthetic. The report records Compose project `df021-demo-19040-b34a99c8` as retained for visual capture. In this executor the project-scoped Docker CLI could not be accessed, so the service/volume/image cleanup state remains unknown.
+This proves a happy-path digital PDF through the recorded local Compose run. It does not prove OCR on scanned documents or images, authentication, production hardening, external release availability, or a current rerun. The demo data is synthetic. The historical `run-report.json` records Compose project `df021-demo-19040-b34a99c8` as retained for visual capture. The later operational cleanup verification confirmed that its API and PostgreSQL containers and its dedicated network were removed. The named volume `df021-demo-19040-b34a99c8_documentflow_pgdata` was intentionally preserved. The demonstration was not rerun during that cleanup verification.
 
-After confirming the exact project still exists, an operator can inspect it from the repository root:
+The historical `closeout.json` still records cleanup as blocked/unverified because that was the result at the time it was written; it is preserved unchanged. Do not treat that historical field as the later operational result. The current cleanup result above comes from the subsequent operator inspection.
+
+To independently inspect the exact project if needed, run from the repository root:
 
 ```powershell
 docker compose --progress=plain -p df021-demo-19040-b34a99c8 -f compose.yaml ps -a
 ```
 
-Only if the listed resources belong to that exact project, remove them with:
+If project resources are present and removal is intended, the volume-preserving command is:
 
 ```powershell
-docker compose --progress=plain -p df021-demo-19040-b34a99c8 -f compose.yaml down --rmi local --volumes --remove-orphans
+docker compose --progress=plain -p df021-demo-19040-b34a99c8 -f compose.yaml down --rmi local --remove-orphans
 ```
 
-This closeout did not run either command. No tests or demo were rerun because the saved end-to-end evidence directly covers the requested flow and rerunning would create another temporary stack.
+The named volume is preserved by that command. Add `--volumes` only after confirming the exact project and explicitly deciding that its PostgreSQL data can be deleted. The later operator cleanup was already completed; these commands are instructions for a future reproduction or inspection. Neither the demo nor its tests were rerun during this closeout.

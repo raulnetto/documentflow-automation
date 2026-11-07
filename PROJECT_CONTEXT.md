@@ -9,7 +9,7 @@
 - Branch: `main`; observed HEAD and `origin/main`: `bd33dbd8969f4716c857d35b94d0c71bc901e68b`; local tag `v0.11.0` points at HEAD.
 - Git status at closeout start: pre-existing modified `AGENTS.md`; untracked `artifacts/`, `automacao_documentos.code-workspace`, `df011-host-report.txt`, and `tools/df021_portfolio_demo.py`. Preserve these; no commit or push was made.
 - DF-021 real run evidence exists under `artifacts/df021-portfolio-demo/20261106-022422-b34a99c8`; its report records successful build/up, HTTP upload/process/retrieval/history/summary, PyMuPDF extraction, and a PostgreSQL row.
-- That run intentionally retained Compose project `df021-demo-19040-b34a99c8` for visual capture. Cleanup could not be checked from this restricted executor because the project-scoped Docker CLI path was inaccessible; do not assume the stack has stopped.
+- That historical run intentionally retained Compose project `df021-demo-19040-b34a99c8` for visual capture. A subsequent operator cleanup removed its API and PostgreSQL containers and dedicated network; the named volume `df021-demo-19040-b34a99c8_documentflow_pgdata` was intentionally preserved. The demo was not rerun during that cleanup verification.
 - Architecture: FastAPI, service/repository layers, SQLAlchemy Core, SQLite default, PostgreSQL via `DATABASE_URL`, JSON processing records.
 - Current persistence repository: `app/repositories/processamento_repository.py`; database setup: `app/database.py`.
 - OCR executable selection uses `TESSERACT_CMD`, then `PATH`, then the legacy Windows path.
@@ -26,16 +26,18 @@
 - A previous DF-011 mission reported 19 passing tests, PostgreSQL 17 in Docker, and SQLAlchemy/Psycopg installed. Those results were not reproducible in the current executor and are not treated as current VERIFIED evidence.
 
 ## Active Slice
-- DF-021: portfolio evidence and reproduction notes prepared from the recorded synthetic run. Visual output is an evidence diagram, not a browser screenshot. Operator must inspect and clean the exact retained Compose project if it still exists.
+- DF-021: portfolio evidence and reproduction notes describe the recorded synthetic run. Visual output is an evidence diagram, not a browser screenshot. The subsequent operational cleanup verification found the API and PostgreSQL containers and dedicated network removed; the named PostgreSQL volume was preserved.
 
 ## Blockers
-- Cleanup status for `df021-demo-19040-b34a99c8` is unverified; the executor could not access Docker CLI. No alternate path, privilege expansion, or GUI was used.
+- The historical `closeout.json` records cleanup as blocked/unverified at the time it was written. Later operator verification supersedes that cleanup status for current documentation: the API and PostgreSQL containers and dedicated network were removed, while the named volume remains preserved. The demonstration and tests were not rerun during this closeout.
 - Owner reports v0.11.0 published; external publication was not independently verified. No release or deployment action was performed.
 
 ## Evidence and Next Action
 - DF-021 run report: `artifacts/df021-portfolio-demo/20261106-022422-b34a99c8/run-report.json`; HTTP details: `http-evidence.json`; extracted text and synthetic PDF are adjacent.
 - PDF SHA-256: `3cf625be5560c9bb75ae242e41213bff2d785cd53d004681948da2e1eabc7235`. The report marks the run `passed`; this is prior execution evidence, not a rerun in this session.
-- Next: inspect the exact Compose project with the project-scoped command, stop/remove it only if it still exists, then review the documentation diff and proposed commit. No commit, push, tag, PR, deploy, or release was performed.
+- DF-021 reproduction: `docs/df021-portfolio-demo.md`; it distinguishes the historical E2E result from later cleanup verification, includes evidence paths, and uses project-scoped volume-preserving cleanup instructions. Its runner's automatic cleanup still removes the unique run volume by design; manual cleanup guidance preserves volumes unless deletion is explicitly intended.
+- Resume in a new session: read this `AGENTS.md`, this `PROJECT_CONTEXT.md`, then the relevant README section and `docs/df021-portfolio-demo.md`; inspect `git status --short` before work. Historical DF-021 artifacts are under `artifacts/df021-portfolio-demo/20261106-022422-b34a99c8/`. Do not infer current validation from old reports: GitHub Actions CI covers the configured pytest workflow, PostgreSQL integration requires the scoped test database/runner, and DF-021 E2E is a separate Docker Compose demonstration. The DF-021 demo and tests were not rerun in this closeout. Local runner availability must be checked in the target HOST environment; the current executor's Python launcher and Docker limitations are recorded above.
+- No commit, push, tag, PR, deploy, or release was performed in this closeout.
 
 ## Finding HOST-001 (2026-11-05)
 - Symptom: HOST runner failed during parameter binding because `Split-Path` received an empty path.
